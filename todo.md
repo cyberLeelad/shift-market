@@ -1,21 +1,35 @@
 Current Todos:
 
-- [x] Keep your design notebook and personal reflections in your existing private individual repository.
+- [x] P1
 
-- [x] The sections may link to separate Markdown files. These sections must be linked in the main README.
+- [ ] **Keep design notebook updated** with incremenetal progress & back steps etc.
 
-- [x] Problem framing and stakeholders
+  > Record design notes; document progress
+  >
+  > - significant decisions
+  >
+  > - challenges
+  >
+  > - future work
+  >
+  > - going back to previous steps
+  >
+  > - changing your implementations or concepts
+  >
+  > Steps will be iterated as you develop your application incrementally
+  >
+  > Demonstrate this incremental work in your design notes
 
-  - [x] Return to TODOs
+- [ ] P2
 
-- [x] Application pitch
+  - [x] User journey: Drafted, need to revise later.
 
-- [x] Concept specifications, essential reactions, and the note explaining their roles
+  - [ ] Set up sync engine
 
-- [x] UI sketches
+  - [ ] Revisit/confirm user journey.
 
-- [x] User journey
+  - [ ] Incremental implementation. On each step,
 
-- [x] Keep your design notebook in your private individual repository, linked from its main README.
+    - [ ] Backend implementation
 
-- [ ] Submit both hashes
+    - [ ] SIMPLE frontend

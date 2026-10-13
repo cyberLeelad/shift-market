@@ -291,17 +291,13 @@ and other similar access gating and other stuff.
 
 ## Staff Members
 
-![](/Users/rld/Downloads/IMG_0582.jpg)
+![](staffUI.jpg)
 
 ## Desk Captain
 
-![](/Users/rld/Downloads/2026-10-11%20Note.png)
+![](deskCapt.png)
 
 # User journey
-
-Write a narrative that follows a single stakeholder as they encounter the problem and use your designed app to address it. Tell their story in chronological order: what triggers their need, the steps they take with the app (referring to the wireframes), and the outcome. A good journey should both persuade a reader that the problem is worth solving, and illustrate how your app might help solve it.
-
-The deliverable here is a few short paragraphs that form a coherent story but identify individual steps clearly, and reference your sketches when appropriate.
 
 Fionna (kerb fionna) is a desk staff member who has weekly shifts on Monday, Wednesday, and Fridays from 6-10pm (technically 2 shifts each day, as our shifts are in 2-hour blocks). She planning to be out of town on Friday 10/16, so she needs someone to cover her shift. She opens Shift Market and logs in, landing on the calendar page which is the dashboard for staff members. She clicks her Friday shift, and confirms that she wants this shift covered (for this date only).
 
