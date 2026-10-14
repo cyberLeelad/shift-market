@@ -9,3 +9,9 @@ This project uses MongoDB, defined in `compose.yaml`. The connection string is i
 - Only use the local database. Never connect to a hosted one.
 - `bun run test` runs the tests against the local MongoDB. Run `bun run db:up` first.
 - `bun run test:memory` runs the tests with a temporary MongoDB and needs no container.
+
+## Running the app
+
+- `bun run dev` starts MongoDB in a container, then the backend at http://127.0.0.1:3000 and the frontend at http://127.0.0.1:8080, both in watch mode.
+- `bun run up` runs all three in containers. `bun run down` stops them, and `bun run db:reset` deletes the local data.
+- Change `design/` before the code. Check it with `bun run check:design`, then run `bun run generate` and `bun run check`.
