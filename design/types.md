@@ -8,10 +8,16 @@ concrete Kerberos
 
 concrete Shift
   A two-hour block at the mail desk, such as Friday 6pm to 8pm.
+
+concrete ClockTime
+  A time of day, such as 16:00, passed as a string.
 ```
 
 ```instances
 instantiate Reserving with
   User is Kerberos
   Resource is Shift
+
+instantiate Provisioning with
+  Time is ClockTime
 ```

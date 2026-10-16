@@ -4,14 +4,16 @@ import { policy } from "./src/http.ts";
 
 export default {
   assemble: assembleApplication,
-  title: "Reservations",
-  wireName: "ReservationsWire",
+  title: "Shift Market",
+  wireName: "ShiftMarketWire",
   design: {
     version: 1,
     documents: [
       new URL("./design/types.md", import.meta.url),
       new URL("./design/compositions/Reservations.md", import.meta.url),
+      new URL("./design/compositions/Shifts.md", import.meta.url),
+      // ADD MORE CONCEPTS HERE (if you add more)
     ],
   },
-  projections: [httpWire({ policy, name: "ReservationsWireHttp" })],
+  projections: [httpWire({ policy, name: "ShiftMarketWireHttp" })],
 };

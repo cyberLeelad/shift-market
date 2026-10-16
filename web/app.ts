@@ -1,7 +1,7 @@
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
-import type { ReservationsWireHttp } from "../generated/wire.ts";
+import type { ShiftMarketWireHttp } from "../generated/wire.ts";
 
-const client = createHttpClient<ReservationsWireHttp>({ baseUrl: "/api" });
+const client = createHttpClient<ShiftMarketWireHttp>({ baseUrl: "/api" });
 
 const reservationForm = document.querySelector<HTMLFormElement>("#reserve")!;
 const reservationStatus = document.querySelector<HTMLParagraphElement>("#status")!;

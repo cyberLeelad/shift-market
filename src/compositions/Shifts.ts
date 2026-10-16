@@ -1,0 +1,40 @@
+import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
+import { each, form, former } from "@mit-sdg/sync-engine/language";
+import { concepts } from "../concepts.ts";
+
+const { Provisioning } = concepts;
+
+const ShiftOrganizer = former("the shift organizer", (_input, { shift, start, end, date }) =>
+  form({
+    shifts: each(Provisioning._all({}).is({ shift, start, end, date })).form({
+      shift,
+      start,
+      end,
+      date,
+    }),
+  }),
+);
+
+const List = endpoint("/shifts/list", () =>
+  receive({}).then(respond({ organizer: ShiftOrganizer({}) })),
+);
+
+const MakeOne = endpoint(
+  "/shifts/makeOne",
+  ({ shift, start, end, date }) =>
+    receive({ start, end, date })
+      .then(Provisioning.makeShift({ start, end, date }).responds({ shift }))
+      .then(respond({ shift })),
+  { input: { required: ["start", "end", "date"] } },
+);
+
+const MakeWeekly = endpoint(
+  "/shifts/makeWeekly",
+  ({ shift, start, end, day, first, last }) =>
+    receive({ start, end, day, first, last })
+      .then(Provisioning.makeWeeklyShift({ start, end, day, first, last }).responds({ shift }))
+      .then(respond({ shift })),
+  { input: { required: ["start", "end", "day", "first", "last"] } },
+);
+
+export const composition = { ShiftOrganizer, List, MakeOne, MakeWeekly };

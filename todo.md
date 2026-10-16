@@ -28,23 +28,19 @@ Most minimal product/first steps:
 
 Incremental implementation. On each step,
 
-    - [ ] For each new concept, write its spec in `design/concepts/`, then update `design/types.md` and any compositions. Run `bun run check:design` after each change.
+    - [x] (**Spec**) For each new concept, write its spec in `design/concepts/`, then update `design/types.md` and any compositions. Run `bun run check:design` after each change.
 
-    - [ ] Then write the class, register it in `src/concepts.ts`, and wire it into `src/compositions/`. Run `bun run generate` and `bun run check` before you try it in the browser.
+    - [x] (**Backend**) Write `src/concepts/ConceptName.ts`. Run `bun run check:design` and `bun run check`.
 
-    - [ ] **Backend**: src/concepts/ConceptName.ts
+    - [x] Update `src/concepts.ts`.
 
-    - [ ] Backend: src/concepts.ts
+    - [x] Write endpoints in `src/compositions/CompositionName.ts`.
 
-    - [ ] Backend endpoints in src/compositions/ConceptName.ts
-
-    - [ ] Backend src/assembly.ts
+    - [x] Update `src/assembly.ts` and `generated.config.ts`. Run `bun run generate` and then `bun run check`.
 
     - [ ] Put the endpoints on the network: HTTP policy in src/http.ts
 
     - [ ] Update src/main.ts
-
-    - [ ] generated.config.ts tells sync-engine where everything is
 
     - [ ] Now generate the wire types and check everything: bun run generate bun run check
 

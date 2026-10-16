@@ -11,6 +11,6 @@ A desk captain [makes a shift](reaction:Shifts.MakeOne) or can
 [make weekly shifts](reaction:Shifts.MakeWeekly).
 
 ```endpoints
-Shifts.Reserve at /shifts/makeOne
-Shifts.Cancel at /shifts/makeWeekly
+Shifts.MakeOne at /shifts/makeOne
+Shifts.MakeWeekly at /shifts/makeWeekly
 ```

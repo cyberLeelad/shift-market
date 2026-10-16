@@ -41,17 +41,20 @@ makeShift(start: Time, end: Time, date: Date) : returns (shift: Shift)
     refuses IMPROPER_SHIFT_TIMES "A shift must end after it starts."
 
 makeWeeklyShift(start: Time, end: Time, day: Day, first: Date, last: Date) : returns (shift: Shift)
-  where start < end and first <= last
+  where start < end and first <= last and some date between first and last falls on day
   then
     create new shifts, one for each week between first and last (inclusive), with each's linked Shifts containing all other shifts created in this call
-    create a set with all the newly-created shifts
+    create a set with all the newly-created shifts, and return an arbitrary one
     returns shift
-  where start >= end
+  where start < end and first <= last and no date between first and last falls on day
   then
-    refuses IMPROPER_SHIFT_TIMES "A shift must end after it starts."
+    refuses NO_MATCHING_DATES "No date in this window falls on that day."
   where start < end and first > last
   then
     refuses IMPROPER_SHIFT_DATES "The first date of the shift window cannot be later than the the last date of the shift window."
+  where start >= end
+  then
+    refuses IMPROPER_SHIFT_TIMES "A shift must end after it starts."
 ```
 
 ## Queries
