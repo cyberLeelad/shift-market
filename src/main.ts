@@ -15,6 +15,7 @@ const server = Bun.serve({
     "/api/*": api,
     "/health": async () => {
       try {
+        // This just needs to ping any one collection to ensure the connection to MongoDB holds.
         await db.collection("reserving.reservations").findOne({}, { maxTimeMS: 2000, timeoutMS: 3000 });
         return Response.json({ status: "ok" }, { headers: { "Cache-Control": "no-store" } });
       } catch {

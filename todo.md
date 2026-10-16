@@ -38,19 +38,15 @@ Incremental implementation. On each step,
 
     - [x] Update `src/assembly.ts` and `generated.config.ts`. Run `bun run generate` and then `bun run check`.
 
-    - [ ] Put the endpoints on the network: HTTP policy in src/http.ts
+    - [x] `src/http.ts`: Define what code the API will send when the request results throws an error.
 
-    - [ ] Update src/main.ts
+    - [ ] Run the backend: bun run db:up, bun run dev:backend.
 
-    - [ ] Now generate the wire types and check everything: bun run generate bun run check
+    - [ ] (*optional?*) Can use a scripts/ to try the concept before writing front end: bun scripts/script-name.ts
 
-    - [ ] Run the backend: bun run db:up, bun run dev:backend
+    - [ ] (**Frontend**) Update what displays using `web/index.html`.
 
-    - [ ] Can use a scripts/ to try the concept before writing front end: bun scripts/script-name.ts
-
-    - [ ] **Frontend**: appearance on web/index.html
-
-    - [ ] determining what to display, e.g. from db in web/app.ts
+    - [ ] Update `web/app.ts` with any new calls (to locate data for `web/index.html` to display).
 
     - [ ] bun run start runs both frontend & backend servers together ; view site to test feature.
 

@@ -143,7 +143,7 @@ export type ShiftMarketWireHttp = {
     output: {
       "shift": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeShift"]>>, ["shift"]>>;
     };
-    error: { error: HttpAppWideError | "INTERNAL_ERROR" | "INVALID_REQUEST" };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" };
   };
   "/shifts/makeWeekly": {
     input: {
@@ -156,6 +156,6 @@ export type ShiftMarketWireHttp = {
     output: {
       "shift": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>>, ["shift"]>>;
     };
-    error: { error: HttpAppWideError | "INTERNAL_ERROR" | "INVALID_REQUEST" };
+    error: { error: HttpAppWideError | "INVALID_REQUEST" };
   };
 };
