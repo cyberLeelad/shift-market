@@ -20,6 +20,8 @@ Most minimal product/first steps:
 
 - [ ] Ctrl-F everywhere for "TODO" (perhaps I can do this more efficiently from the command line somehow)
 
+- [ ] Find out if design/concepts/Provisioning.md makeWeeklyShifts can return a set, and how to specify that
+
 ---
 
 Current Todos:
