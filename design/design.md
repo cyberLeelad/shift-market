@@ -81,7 +81,7 @@ concept Provisioning
 
 purpose provision time slots (shifts) for filling in advance
 
-principle shifts can be made and then filled
+principle shifts can be made
 
 state
   a set of Shifts with
@@ -89,9 +89,6 @@ state
     an end Time
     a Date
     an optional set of linked Shifts
-      # These should always maintain the same Filled/not Filled
-      unless they are unlinked.
-  a Filled set of Slots
 
 actions
   makeShift (start: Time, end: Time, date: Date) : (shift: Shift)
@@ -103,29 +100,6 @@ actions
     then call makeShift to create new shifts, one for each week between first and last (inclusive),
     with each's linked Shifts containing all other shifts created in this call.
     create a set with all the newly-created shifts and return it
-    
-  fill (shift: Shift)
-    where shift exists in Shifts and does not exist in Filled
-    then add the shift to Filled and unlink (on both sides) any linked shifts
-    
-  fillRecurring (shift: Shift)
-    where shift exists in Shifts and not in Filled
-    then add shift and all linked shifts to Filled
-    
-  empty (shift: Shift)
-    where shift exists in Shifts and in Filled
-    then unlink linked shifts (on both sides) and remove from Filled
-    
-  emptyRecurring (shift: Shift)
-    where shift exists in Shifts and in Filled
-    then remove shift and all linked from Filled
-    
-  _unfilledShifts : (shifts: set of Shift)
-    return all slots in the set and not in filled
-    
-  _isFilled (shift: Shift) : (isFilled: boolean)
-    where shift exists in Shifts
-    return true iff shift exists in Filled
 ```
 
 ### Reserving

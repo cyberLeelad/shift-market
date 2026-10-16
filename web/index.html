@@ -1,20 +1,38 @@
 <!doctype html>
 <html lang="en">
+  <!-- How the tab displays next to your other tabs -->
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Claimed Shifts</title>
+    <title>Shift Market</title>
     <link rel="stylesheet" href="./styles.css" />
     <script type="module" src="./app.ts"></script>
   </head>
+
+  <!-- Web page -->
   <body>
-    <h1>Reservations</h1>
+
+    <!-- Reserving concept, atomized -->
+    <h1>Claimed Shifts (Reserving concept, atomized)</h1>
     <form id="reserve">
       <input name="user" placeholder="Your kerberos" required />
       <input name="resource" placeholder="oct-11-6pm" required />
-      <button>Claim</button>
+      <button>Create and claim</button>
     </form>
     <p id="status"></p>
     <ul id="reservations"></ul>
+
+    <!-- Provisioning concept, atomized -->
+    <h1>All Shifts (Provisioning concept, atomized)</h1>
+    <p>coming soon..</p>
+    <!--
+    <form id="provision">
+      <input name="pin" placeholder="tba" required />
+      <button>Provision (create)</button>
+    </form>
+    <p id="provisionstatus"></p>
+    <ul id="allshifts"></ul>
+    -->
+
   </body>
 </html>

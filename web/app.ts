@@ -3,17 +3,19 @@ import type { ReservationsWireHttp } from "../generated/wire.ts";
 
 const client = createHttpClient<ReservationsWireHttp>({ baseUrl: "/api" });
 
-const form = document.querySelector<HTMLFormElement>("#reserve")!;
-const status = document.querySelector<HTMLParagraphElement>("#status")!;
-const list = document.querySelector<HTMLUListElement>("#reservations")!;
+const reservationForm = document.querySelector<HTMLFormElement>("#reserve")!;
+const reservationStatus = document.querySelector<HTMLParagraphElement>("#status")!;
+const reservationList = document.querySelector<HTMLUListElement>("#reservations")!;
+
+// RESERVING ======================================================================
 
 async function showReservations() {
   const result = await client.reservations.list({});
   if ("error" in result) {
-    status.textContent = `Could not load shifts: ${result.error}`;
+    reservationStatus.textContent = `Could not load shifts: ${result.error}`;
     return;
   }
-  list.replaceChildren(
+  reservationList.replaceChildren(
     ...result.book.reservations.map(({ reservation, user, resource }) => {
       const cancel = document.createElement("button");
       cancel.textContent = "Cancel";
@@ -28,15 +30,45 @@ async function showReservations() {
   );
 }
 
-form.addEventListener("submit", async (event) => {
+reservationForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const data = new FormData(form);
+  const data = new FormData(reservationForm);
   const result = await client.reservations.reserve({
     user: String(data.get("user")),
     resource: String(data.get("resource")),
   });
-  status.textContent = "error" in result ? `Could not reserve: ${result.error}` : "Reserved!";
+  reservationStatus.textContent = "error" in result ? `Could not reserve: ${result.error}` : "Reserved!";
   await showReservations();
 });
 
 showReservations();
+
+
+// PROVISIONING ===================================================================
+
+/*
+const provisionForm = document.querySelector<HTMLFormElement>("#provision")!; // input "pin"
+const provStatus = document.querySelector<HTMLParagraphElement>("#provisionstatus")!;
+const shiftList = document.querySelector<HTMLUListElement>("#allshifts")!;
+
+async function showShiftsAsList() {
+  const result = await client.reservations.list({});
+  if ("error" in result) {
+    reservationStatus.textContent = `Could not load shifts: ${result.error}`;
+    return;
+  }
+  reservationList.replaceChildren(
+    ...result.book.reservations.map(({ reservation, user, resource }) => {
+      const cancel = document.createElement("button");
+      cancel.textContent = "Cancel";
+      cancel.addEventListener("click", async () => {
+        await client.reservations.cancel({ reservation });
+        await showReservations();
+      });
+      const item = document.createElement("li");
+      item.append(`${resource}, held by ${user} `, cancel);
+      return item;
+    }),
+  );
+}
+  */
