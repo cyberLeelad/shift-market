@@ -24,28 +24,6 @@ Most minimal product/first steps:
 
 ---
 
-Current Todos:
-
-- [ ] **Keep design notebook updated** with incremenetal progress & back steps etc.
-
-  > Record design notes; document progress
-  >
-  > - significant decisions
-  >
-  > - challenges
-  >
-  > - future work
-  >
-  > - going back to previous steps
-  >
-  > - changing your implementations or concepts
-  >
-  > Steps will be iterated as you develop your application incrementally
-  >
-  > Demonstrate this incremental work in your design notes
-
----
-
 - [ ] P2
 
 Incremental implementation. On each step,
@@ -79,6 +57,28 @@ Incremental implementation. On each step,
     - [ ] determining what to display, e.g. from db in web/app.ts
 
     - [ ] bun run start runs both frontend & backend servers together ; view site to test feature.
+
+---
+
+Current Todos:
+
+- [ ] **Keep design notebook updated** with incremenetal progress & back steps etc.
+
+  > Record design notes; document progress
+  >
+  > - significant decisions
+  >
+  > - challenges
+  >
+  > - future work
+  >
+  > - going back to previous steps
+  >
+  > - changing your implementations or concepts
+  >
+  > Steps will be iterated as you develop your application incrementally
+  >
+  > Demonstrate this incremental work in your design notes
 
 ---
 

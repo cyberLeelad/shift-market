@@ -43,7 +43,7 @@ makeShift(start: Time, end: Time, date: Date) : returns (shift: Shift)
 makeWeeklyShift(start: Time, end: Time, day: Day, first: Date, last: Date) : returns (shift: Shift)
   where start < end and first <= last
   then
-    create new shifts using makeShift, one for each week between first and last (inclusive), with each's linked Shifts containing all other shifts created in this call
+    create new shifts, one for each week between first and last (inclusive), with each's linked Shifts containing all other shifts created in this call
     create a set with all the newly-created shifts
     returns shift
   where start >= end
