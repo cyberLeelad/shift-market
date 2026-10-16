@@ -22,6 +22,14 @@ Most minimal product/first steps:
 
 - [ ] Find out if design/concepts/Provisioning.md makeWeeklyShifts can return a set, and how to specify that
 
+- [ ] Allow desk captain to delete shifts
+
+- [ ] Change Provisioning._all to also return "isWeeklyShift," as determined by whether or not it's linked to anything else. (I think this is a reasonable way to determine whether it's a weekly shift?)
+
+- [ ] Disallow creating shifts in the past.
+
+- [ ] Disallow interacting with past shifts.
+
 ---
 
 - [ ] P2
@@ -48,7 +56,7 @@ Incremental implementation. On each step,
 
     - [ ] Update `web/app.ts` with any new calls (to locate data for `web/index.html` to display).
 
-    - [ ] bun run start runs both frontend & backend servers together ; view site to test feature.
+    - [ ] bun run start runs both frontend & backend servers together. View site to test feature.
 
 ---
 
