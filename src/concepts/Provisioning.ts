@@ -41,6 +41,14 @@ function weeklyDates(first: string, last: string, dayNumber: number): string[] {
   return dates;
 }
 
+// An end before 06:00 that isn't after the start means the following morning.
+function normalizeEnd(start: string, end: string): string {
+  if (end <= start && end < "06:00") {
+    return `${24 + Number(end.slice(0, 2))}${end.slice(2)}`;
+  }
+  return end;
+}
+
 export class ProvisioningConcept {
   private readonly shifts: Collection<Shift>;
 
@@ -49,6 +57,7 @@ export class ProvisioningConcept {
   }
 
   async makeShift({ start, end, date }: { start: string; end: string; date: string }) {
+    end = normalizeEnd(start, end);
     if (start >= end) {
       throw new ImproperShiftTimes("A shift must end after it starts.");
     }
@@ -70,6 +79,7 @@ export class ProvisioningConcept {
     first: string;
     last: string;
   }) {
+    end = normalizeEnd(start, end);
     if (start >= end) {
       throw new ImproperShiftTimes("A shift must end after it starts.");
     }

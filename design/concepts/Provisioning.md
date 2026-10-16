@@ -15,7 +15,7 @@ Day is MONDAY or TUESDAY or WEDNESDAY or THURSDAY or FRIDAY or SATURDAY or SUNDA
   The day of the week, an enum used to error-proof makeWeeklyShift.
 
 external Time
-  A representation of a time in a day. This must be a type that can be compared (e.g. has valueOf()).
+  A representation of a time in a day. This must be a type that can be compared (e.g. has valueOf()). For comparisons, I'm counting an end that comes after start, but before 6am, as the following morning, and therefore in that case end > start.
 ```
 
 ## State
