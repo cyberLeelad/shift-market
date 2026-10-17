@@ -7,7 +7,7 @@ export default defineConfig({
   root: "web",
   plugins: [vue()],
   server: {
-    port: 5173,
+    port: 8080,
     headers: { "Referrer-Policy": "no-referrer" },
     proxy: { "/api": backend },
   },
