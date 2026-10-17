@@ -36,6 +36,8 @@ The 4th concept (Expiring) is also kind of important here, but... I'm scared abo
 
 - [ ] Disallow interacting with past shifts.
 
+- [ ] Calendar size varies depending on actual shift schedule
+
 ---
 
 - [ ] P2

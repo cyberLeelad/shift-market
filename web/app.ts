@@ -48,23 +48,6 @@ showReservations();
 
 const provisionForm = document.querySelector<HTMLFormElement>("#provision")!; // input "pin"
 const provStatus = document.querySelector<HTMLParagraphElement>("#provisionStatus")!;
-const shiftList = document.querySelector<HTMLUListElement>("#allShifts")!;
-
-async function showShiftsAsList() {
-  const result = await client.shifts.list({});
-  if ("error" in result) {
-    provStatus.textContent = `Could not load shifts: ${result.error}`;
-    return;
-  }
-  shiftList.replaceChildren(
-    ...result.organizer.shifts.map(({ date, end, shift, start }) => {
-      const item = document.createElement("li");
-      // If I add a repeating symbol, it should go here.
-      item.append(`${date}, ${start}-${end}`);
-      return item;
-    }),
-  );
-}
 
 // What happens when the button in the provision form is pressed.
 provisionForm.addEventListener("submit", async (event) => {
@@ -76,10 +59,8 @@ provisionForm.addEventListener("submit", async (event) => {
     end: String(data.get("end")),
   });
   provStatus.textContent = "error" in result ? `Could not create shift: ${result.error}` : "Created shift!";
-  await showShiftsAsList();
+  await loadCalendar();
 });
-
-showShiftsAsList();
 
 /* CALENDAR STUFF */
 // CALENDAR =======================================================================
@@ -87,6 +68,7 @@ showShiftsAsList();
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PX_PER_MINUTE = 1; // 24 hours is 1440px tall
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const CAL_START = minutes("08:00");
 
 const calendarEl = document.querySelector<HTMLDivElement>("#calendar")!;
 const weekLabel = document.querySelector<HTMLSpanElement>("#weekLabel")!;
@@ -146,7 +128,8 @@ function renderCalendar() {
   hours.className = "cal-hours";
   hours.append(document.createElement("div")); // spacer
   hours.lastElementChild!.className = "cal-head";
-  for (let h = 0; h < 24; h++) {
+  // for (let h = 0; h < 24; h++) {
+  for (let h = 8; h < 24; h++) {
     const label = document.createElement("div");
     label.className = "cal-hour";
     label.textContent = `${String(h).padStart(2, "0")}:00`;
@@ -171,7 +154,7 @@ function renderCalendar() {
     for (const { s, from, to, lane } of placed) {
       const block = document.createElement("div");
       block.className = s.repeating ? "cal-shift repeating" : "cal-shift";
-      block.style.top = `${from * PX_PER_MINUTE}px`;
+      block.style.top = `${(from - CAL_START) * PX_PER_MINUTE}px`;
       block.style.height = `${(to - from) * PX_PER_MINUTE}px`;
       block.style.left = `${(lane * 100) / lanes}%`;
       block.style.width = `${100 / lanes}%`;

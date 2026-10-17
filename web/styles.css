@@ -18,7 +18,7 @@ li {
 .cal-hour { height: 60px; font-size: 0.7rem; border-top: 1px solid #ddd; }
 .cal-body {
   position: relative;
-  height: 1440px;
+  height: 960px;
   border-left: 1px solid #ddd;
   background: repeating-linear-gradient(to bottom, transparent 0 59px, #eee 59px 60px);
 }
