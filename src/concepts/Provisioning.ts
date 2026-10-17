@@ -111,4 +111,9 @@ export class ProvisioningConcept {
     const rows = await this.shifts.find().sort({ date: 1, start: 1 }).toArray();
     return rows.map(({ _id, start, end, date }) => ({ shift: _id, start, end, date }));
   }
+
+  async _exists({ shift }: { shift: string }) {
+    const found = await this.shifts.findOne({ _id: shift }, { projection: { _id: 1 } });
+    return { exists: found !== null };
+  }
 }

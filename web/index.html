@@ -25,10 +25,26 @@
     <!-- Provisioning concept, atomized -->
     <h1>All Shifts (Provisioning concept, atomized)</h1>
     <form id="provision">
-      <input name="date" type="date" placeholder="date, YYYY-MM-DD" required />
-      <input name="start" type="time" placeholder="start time, e.g. 18:00" required />
-      <input name="end" type="time" placeholder="end time, e.g. 03:00" required />
-      <label><input name="isWeekly" type="checkbox" value="yes" checked />Weekly shift</label>
+      <input name="date" type="date" required />
+      <label id="lastField" hidden>Last date <input name="last" type="date" /></label>
+      <label id="dayField" hidden>
+        Day
+        <select name="day">
+          <option value="MONDAY">Monday</option>
+          <option value="TUESDAY">Tuesday</option>
+          <option value="WEDNESDAY">Wednesday</option>
+          <option value="THURSDAY">Thursday</option>
+          <option value="FRIDAY">Friday</option>
+          <option value="SATURDAY">Saturday</option>
+          <option value="SUNDAY">Sunday</option>
+        </select>
+      </label>
+      <input name="start" type="time" required />
+      <input name="end" type="time" required />
+      <label>
+        <input id="isWeekly" name="isWeekly" type="checkbox" value="yes" checked />
+        Weekly shift
+      </label>
       <button>Create shift!</button>
     </form>
     <p id="provisionStatus"></p>

@@ -62,4 +62,7 @@ makeWeeklyShift(start: Time, end: Time, day: Day, first: Date, last: Date) : ret
 ```queries
 _all() : many (shift: Shift, start: Time, end: Time, date: Date)
   Answers every shift, ordered chronologically by start date and time (with ties ordered arbitrarily), and no rows when there are none.
+
+_exists(shift: Shift) : one (exists: Flag)
+  Returns true if and only if shift exists in Shifts, and false otherwise.
 ```

@@ -24,6 +24,7 @@ Defined in [Provisioning](../design/concepts/Provisioning.md), line 1.
 #### Queries
 
 - `_all() : many (shift: Shift, start: Time, end: Time, date: Date)`
+- `_exists(shift: Shift) : one (exists: Flag)`
 
 #### Instances
 

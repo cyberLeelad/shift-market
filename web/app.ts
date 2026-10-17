@@ -48,17 +48,50 @@ showReservations();
 
 const provisionForm = document.querySelector<HTMLFormElement>("#provision")!; // input "pin"
 const provStatus = document.querySelector<HTMLParagraphElement>("#provisionStatus")!;
+const weeklyBox = document.querySelector<HTMLInputElement>("#isWeekly")!;
+const lastField = document.querySelector<HTMLLabelElement>("#lastField")!;
+const dayField = document.querySelector<HTMLLabelElement>("#dayField")!;
+const lastInput = provisionForm.elements.namedItem("last") as HTMLInputElement;
+const dayInput = provisionForm.elements.namedItem("day") as HTMLSelectElement;
+
+// Shows the weekly-only fields and makes them required only while weekly is checked.
+// Hidden required fields would block submission with no visible reason.
+function showWeeklyFields() {
+  const weekly = weeklyBox.checked;
+  lastField.hidden = !weekly;
+  dayField.hidden = !weekly;
+  lastInput.required = weekly;
+  dayInput.required = weekly;
+}
+
+weeklyBox.addEventListener("change", showWeeklyFields);
+showWeeklyFields();
+
+// What happens when the button in the provision form is pressed.
+// The Day type the generated client expects, taken from the endpoint itself.
+type WeeklyDay = Parameters<typeof client.shifts.makeWeekly>[0]["day"];
 
 // What happens when the button in the provision form is pressed.
 provisionForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const data = new FormData(provisionForm);
-  const result = await client.shifts.makeOne({
-    date: String(data.get("date")),
-    start: String(data.get("start")),
-    end: String(data.get("end")),
-  });
-  provStatus.textContent = "error" in result ? `Could not create shift: ${result.error}` : "Created shift!";
+  const start = String(data.get("start"));
+  const end = String(data.get("end"));
+  const date = String(data.get("date"));
+
+  // An unchecked box is absent from FormData, so data.has tells us which mode is active.
+  const result = data.has("isWeekly")
+    ? await client.shifts.makeWeekly({
+        start,
+        end,
+        day: String(data.get("day")) as WeeklyDay,
+        first: date,
+        last: String(data.get("last")),
+      })
+    : await client.shifts.makeOne({ start, end, date });
+
+  provStatus.textContent =
+    "error" in result ? `Could not create shift: ${result.error}` : "Created shift!";
   await loadCalendar();
 });
 
@@ -167,7 +200,7 @@ function renderCalendar() {
       button.textContent = "Claim";
       block.append(button);
       // End button
-      
+
       body.append(block);
     }
 
