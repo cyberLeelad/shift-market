@@ -1,0 +1,15 @@
+bun test v1.4.2 (744846f84)
+
+tests/concepts/Reserving.test.ts:
+(pass) Reserving > its principle: Fionna holds oct-13-6pm, Cake is refused until she cancels, then Cake can reserve it [467.95ms]
+(pass) Reserving > _all lists every reservation ordered by resource, and no rows when there are none [33.30ms]
+(pass) Reserving > one user can hold several different resources at once [32.88ms]
+(pass) Reserving > a refused reservation leaves the current holder in place [41.50ms]
+(pass) Reserving > cancelling twice, or cancelling a reservation that never existed, is refused and changes nothing [36.31ms]
+(pass) Reserving > two users reserving the same resource at once: exactly one succeeds and the other is refused [86.70ms]
+(pass) Reserving > two cancellations of one reservation at once: one succeeds and the other is refused [39.87ms]
+
+ 7 pass
+ 0 fail
+ 19 expect() calls
+Ran 7 tests across 1 file. [915.00ms]
