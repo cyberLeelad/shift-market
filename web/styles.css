@@ -1,7 +1,6 @@
 body {
   font-family: system-ui, sans-serif;
-  max-width: 40rem;
-  margin: 2rem auto;
+  margin: 2rem;
   padding: 0 1rem;
 }
 
@@ -13,3 +12,22 @@ form {
 li {
   margin: 0.5rem 0;
 }
+
+.cal-grid { display: grid; grid-template-columns: 4rem repeat(7, 1fr); font-size: 0.85rem; }
+.cal-head { height: 2rem; font-weight: bold; text-align: center; line-height: 2rem; }
+.cal-hour { height: 60px; font-size: 0.7rem; border-top: 1px solid #ddd; }
+.cal-body {
+  position: relative;
+  height: 1440px;
+  border-left: 1px solid #ddd;
+  background: repeating-linear-gradient(to bottom, transparent 0 59px, #eee 59px 60px);
+}
+.cal-shift {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 2px;
+  overflow: hidden;
+  background: #cfe3ff;
+  border: 1px solid #5b8fd6;
+}
+.cal-shift.repeating { background: #d9f2d9; border-color: #4d9a4d; }

@@ -80,3 +80,143 @@ provisionForm.addEventListener("submit", async (event) => {
 });
 
 showShiftsAsList();
+
+/* CALENDAR STUFF */
+// CALENDAR =======================================================================
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const PX_PER_MINUTE = 1; // 24 hours is 1440px tall
+const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+const calendarEl = document.querySelector<HTMLDivElement>("#calendar")!;
+const weekLabel = document.querySelector<HTMLSpanElement>("#weekLabel")!;
+const prevWeekBtn = document.querySelector<HTMLButtonElement>("#prevWeek")!;
+const nextWeekBtn = document.querySelector<HTMLButtonElement>("#nextWeek")!;
+
+type ShiftRow = { shift: string; start: string; end: string; date: string; repeating: boolean };
+let allShifts: ShiftRow[] = [];
+let weekStart = mondayOf(new Date());
+
+// Monday of the week containing the given date, as a UTC midnight Date.
+function mondayOf(date: Date): Date {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const offset = (d.getUTCDay() + 6) % 7; // Monday = 0, Sunday = 6
+  return new Date(d.getTime() - offset * DAY_MS);
+}
+
+function toISO(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+// "HH:MM" to minutes since midnight. Ends past 24:00 stay above 1440.
+function minutes(hhmm: string): number {
+  return Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+}
+
+// Shows a stored time on a 24-hour clock, so 24:30 displays as 00:30.
+function clock(hhmm: string): string {
+  const m = minutes(hhmm) % 1440;
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
+
+// Gives overlapping shifts in the same day separate lanes, so they sit side by side.
+function layoutDay(shifts: ShiftRow[]) {
+  const sorted = [...shifts].sort((a, b) => minutes(a.start) - minutes(b.start));
+  const laneEnds: number[] = [];
+  const placed = sorted.map((s) => {
+    const from = minutes(s.start);
+    const to = Math.min(minutes(s.end), 1440); // clip at midnight
+    let lane = laneEnds.findIndex((end) => end <= from);
+    if (lane === -1) lane = laneEnds.push(0) - 1;
+    laneEnds[lane] = to;
+    return { s, from, to, lane };
+  });
+  return { placed, lanes: Math.max(1, laneEnds.length) };
+}
+
+function renderCalendar() {
+  const days = Array.from({ length: 7 }, (_, i) => new Date(weekStart.getTime() + i * DAY_MS));
+  weekLabel.textContent = `${toISO(days[0])} to ${toISO(days[6])}`;
+
+  const grid = document.createElement("div");
+  grid.className = "cal-grid";
+
+  // Hour labels, with a spacer that lines up with the day headers.
+  const hours = document.createElement("div");
+  hours.className = "cal-hours";
+  hours.append(document.createElement("div")); // spacer
+  hours.lastElementChild!.className = "cal-head";
+  for (let h = 0; h < 24; h++) {
+    const label = document.createElement("div");
+    label.className = "cal-hour";
+    label.textContent = `${String(h).padStart(2, "0")}:00`;
+    hours.append(label);
+  }
+  grid.append(hours);
+
+  days.forEach((day, i) => {
+    const iso = toISO(day);
+    const col = document.createElement("div");
+    col.className = "cal-day";
+
+    const head = document.createElement("div");
+    head.className = "cal-head";
+    head.textContent = `${DAY_NAMES[i]} ${iso.slice(5)}`;
+    col.append(head);
+
+    const body = document.createElement("div");
+    body.className = "cal-body";
+    const { placed, lanes } = layoutDay(allShifts.filter((s) => s.date === iso));
+
+    for (const { s, from, to, lane } of placed) {
+      const block = document.createElement("div");
+      block.className = s.repeating ? "cal-shift repeating" : "cal-shift";
+      block.style.top = `${from * PX_PER_MINUTE}px`;
+      block.style.height = `${(to - from) * PX_PER_MINUTE}px`;
+      block.style.left = `${(lane * 100) / lanes}%`;
+      block.style.width = `${100 / lanes}%`;
+
+      const overnight = minutes(s.end) > 1440;
+      block.textContent = `${s.start}-${clock(s.end)}${overnight ? " (next day)" : ""}${s.repeating ? " ↻" : ""}`;
+      body.append(block);
+    }
+
+    col.append(body);
+    grid.append(col);
+  });
+
+  calendarEl.replaceChildren(grid);
+}
+
+// To be replaced when repeating functionality is added in a later stage.
+/*
+async function loadCalendar() {
+  const result = await client.shifts.list({});
+  if ("error" in result) {
+    provStatus.textContent = `Could not load shifts: ${result.error}`;
+    return;
+  }
+  allShifts = result.organizer.shifts;
+  renderCalendar();
+}*/
+async function loadCalendar() {
+  const result = await client.shifts.list({});
+  if ("error" in result) {
+    provStatus.textContent = `Could not load shifts: ${result.error}`;
+    return;
+  }
+  allShifts = result.organizer.shifts.map((s) => ({ ...s, repeating: false }));
+  renderCalendar();
+}
+
+prevWeekBtn.addEventListener("click", () => {
+  weekStart = new Date(weekStart.getTime() - 7 * DAY_MS);
+  renderCalendar();
+});
+
+nextWeekBtn.addEventListener("click", () => {
+  weekStart = new Date(weekStart.getTime() + 7 * DAY_MS);
+  renderCalendar();
+});
+
+loadCalendar();
