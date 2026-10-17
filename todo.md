@@ -8,6 +8,8 @@ Most minimal product/first steps:
 
    - [ ] This uses Reserving and Provisioning which are both already done, so also a priority.
 
+   - [ ] Make the button on the calendar functional.
+
 3. Claim one-off shift
 
 4. Release one date of weekly shift

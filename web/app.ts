@@ -161,6 +161,13 @@ function renderCalendar() {
 
       const overnight = minutes(s.end) > 1440;
       block.textContent = `${s.start}-${clock(s.end)}${overnight ? " (next day)" : ""}${s.repeating ? " ↻" : ""}`;
+
+      // Button
+      const button = document.createElement("button");
+      button.textContent = "Claim";
+      block.append(button);
+      // End button
+      
       body.append(block);
     }
 
