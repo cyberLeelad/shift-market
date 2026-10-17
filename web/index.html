@@ -12,18 +12,14 @@
   <!-- Web page -->
   <body>
 
-    <!-- Reserving concept, atomized -->
-    <h1>Claimed Shifts (Reserving concept, atomized)</h1>
-    <form id="reserve">
-      <input name="user" placeholder="Your kerberos" required />
-      <input name="resource" placeholder="oct-11-6pm" required />
-      <button>Create and claim</button>
-    </form>
-    <p id="status"></p>
-    <ul id="reservations"></ul>
+    <p>
+      <input id="kerberos" placeholder="Your kerberos" />
+      You are currently <b>not</b> authenticated (because Authenticating is not currently supported).
+    </p>
 
-    <!-- Provisioning concept, atomized -->
-    <h1>All Shifts (Provisioning concept, atomized)</h1>
+    <p id="status"></p>
+
+    <h1>Add Shift(s)</h1>
     <form id="provision">
       <input name="date" type="date" required />
       <label id="lastField" hidden>Last date <input name="last" type="date" /></label>

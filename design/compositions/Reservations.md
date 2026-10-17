@@ -7,10 +7,16 @@ Anyone can [list the reservations](reaction:Reservations.List). The
 Reservations.List at /reservations/list
 ```
 
-A staff member [reserves a shift](reaction:Reservations.Reserve) under their kerberos, and anyone can
-[cancel a reservation](reaction:Reservations.Cancel).
+A staff member [reserves a shift](reaction:Reservations.Reserve) under their kerberos if the resource exists. An unknown resource is
+[refused](reaction:Reservations.RejectUnknownShift) instead of reserved.
 
 ```endpoints
 Reservations.Reserve at /reservations/reserve
+Reservations.RejectUnknownShift at /reservations/reserve
+```
+
+Theoretically, someone could [cancel a reservation](reaction:Reservations.Cancel).
+
+```endpoints
 Reservations.Cancel at /reservations/cancel
 ```

@@ -3,47 +3,6 @@ import type { ShiftMarketWireHttp } from "../generated/wire.ts";
 
 const client = createHttpClient<ShiftMarketWireHttp>({ baseUrl: "/api" });
 
-const reservationForm = document.querySelector<HTMLFormElement>("#reserve")!;
-const reservationStatus = document.querySelector<HTMLParagraphElement>("#status")!;
-const reservationList = document.querySelector<HTMLUListElement>("#reservations")!;
-
-// RESERVING ======================================================================
-
-async function showReservations() {
-  const result = await client.reservations.list({});
-  if ("error" in result) {
-    reservationStatus.textContent = `Could not load shifts: ${result.error}`;
-    return;
-  }
-  reservationList.replaceChildren(
-    ...result.book.reservations.map(({ reservation, user, resource }) => {
-      const cancel = document.createElement("button");
-      cancel.textContent = "Cancel";
-      cancel.addEventListener("click", async () => {
-        await client.reservations.cancel({ reservation });
-        await showReservations();
-      });
-      const item = document.createElement("li");
-      item.append(`${resource}, held by ${user} `, cancel);
-      return item;
-    }),
-  );
-}
-
-reservationForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const data = new FormData(reservationForm);
-  const result = await client.reservations.reserve({
-    user: String(data.get("user")),
-    resource: String(data.get("resource")),
-  });
-  reservationStatus.textContent = "error" in result ? `Could not reserve: ${result.error}` : "Reserved!";
-  await showReservations();
-});
-
-showReservations();
-
-
 // PROVISIONING ===================================================================
 
 const provisionForm = document.querySelector<HTMLFormElement>("#provision")!; // input "pin"
@@ -108,7 +67,7 @@ const weekLabel = document.querySelector<HTMLSpanElement>("#weekLabel")!;
 const prevWeekBtn = document.querySelector<HTMLButtonElement>("#prevWeek")!;
 const nextWeekBtn = document.querySelector<HTMLButtonElement>("#nextWeek")!;
 
-type ShiftRow = { shift: string; start: string; end: string; date: string; repeating: boolean };
+type ShiftRow = { shift: string; start: string; end: string; date: string };
 let allShifts: ShiftRow[] = [];
 let weekStart = mondayOf(new Date());
 
@@ -149,6 +108,21 @@ function layoutDay(shifts: ShiftRow[]) {
   return { placed, lanes: Math.max(1, laneEnds.length) };
 }
 
+const userInput = document.querySelector<HTMLInputElement>("#kerberos")!;
+let claims = new Map<string, string>(); // shift id -> kerberos holding it
+
+async function claimShift(shift: string) {
+  const user = userInput.value.trim();
+  if (!user) {
+    provStatus.textContent = "Enter your kerberos first.";
+    return;
+  }
+  const result = await client.reservations.reserve({ user, resource: shift });
+  provStatus.textContent =
+    "error" in result ? `Could not claim: ${result.error}` : "Claimed!";
+  await loadCalendar();
+}
+
 function renderCalendar() {
   const days = Array.from({ length: 7 }, (_, i) => new Date(weekStart.getTime() + i * DAY_MS));
   weekLabel.textContent = `${toISO(days[0])} to ${toISO(days[6])}`;
@@ -186,19 +160,28 @@ function renderCalendar() {
 
     for (const { s, from, to, lane } of placed) {
       const block = document.createElement("div");
-      block.className = s.repeating ? "cal-shift repeating" : "cal-shift";
+      block.className = "cal-shift";
       block.style.top = `${(from - CAL_START) * PX_PER_MINUTE}px`;
       block.style.height = `${(to - from) * PX_PER_MINUTE}px`;
       block.style.left = `${(lane * 100) / lanes}%`;
       block.style.width = `${100 / lanes}%`;
 
       const overnight = minutes(s.end) > 1440;
-      block.textContent = `${s.start}-${clock(s.end)}${overnight ? " (next day)" : ""}${s.repeating ? " ↻" : ""}`;
+      block.textContent = `${s.start}-${clock(s.end)}${overnight ? " (next day)" : ""}`;
 
       // Button
-      const button = document.createElement("button");
-      button.textContent = "Claim";
-      block.append(button);
+      const holder = claims.get(s.shift);
+      if (holder) {
+        const who = document.createElement("div");
+        who.textContent = `held by ${holder}`;
+        block.append(who);
+      } else {
+        const claim = document.createElement("button");
+        claim.textContent = "Claim";
+        claim.addEventListener("click", () => claimShift(s.shift));
+        block.append(claim);
+      }
+      body.append(block);
       // End button
 
       body.append(block);
@@ -211,24 +194,19 @@ function renderCalendar() {
   calendarEl.replaceChildren(grid);
 }
 
-// To be replaced when repeating functionality is added in a later stage.
-/*
 async function loadCalendar() {
-  const result = await client.shifts.list({});
-  if ("error" in result) {
-    provStatus.textContent = `Could not load shifts: ${result.error}`;
+  const shifts = await client.shifts.list({});
+  if ("error" in shifts) {
+    provStatus.textContent = `Could not load shifts: ${shifts.error}`;
     return;
   }
-  allShifts = result.organizer.shifts;
-  renderCalendar();
-}*/
-async function loadCalendar() {
-  const result = await client.shifts.list({});
-  if ("error" in result) {
-    provStatus.textContent = `Could not load shifts: ${result.error}`;
+  const reservations = await client.reservations.list({});
+  if ("error" in reservations) {
+    provStatus.textContent = `Could not load reservations: ${reservations.error}`;
     return;
   }
-  allShifts = result.organizer.shifts.map((s) => ({ ...s, repeating: false }));
+  claims = new Map(reservations.book.reservations.map((r) => [r.resource, r.user]));
+  allShifts = shifts.organizer.shifts;
   renderCalendar();
 }
 

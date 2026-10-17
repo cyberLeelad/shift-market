@@ -6,6 +6,7 @@ import type { applicationConceptSet as ApplicationConceptSet } from "../src/conc
 type AtPath<T, P extends readonly string[]> = P extends readonly [infer H extends string, ...infer R extends string[]] ? H extends keyof T ? AtPath<T[H], R> : H extends `${number}` ? T extends readonly (infer Item)[] ? AtPath<Item, R> : never : never : T;
 type QueryRow<T> = T extends readonly (infer Row)[] ? Row : T;
 type AllOf<T extends readonly unknown[]> = T extends readonly [infer Head, ...infer Rest] ? Head & AllOf<Rest> : unknown;
+type OneOf<T extends readonly unknown[]> = T[number];
 type Jsonify<T> = T extends Date ? string : T extends null | boolean | number | string ? T : T extends (...args: never[]) => unknown ? never : T extends readonly (infer Item)[] ? Jsonify<Item>[] : T extends object ? { [K in keyof T]: Jsonify<T[K]> } : never;
 
 export type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
@@ -37,13 +38,13 @@ export type ShiftMarketWire = {
   };
   "/reservations/reserve": {
     input: {
-      "resource": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>>;
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
       "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>>;
     };
     output: {
       "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>>, ["reservation"]>>;
     };
-    error: { error: AppWideError | "ALREADY_RESERVED" | "INVALID_INPUT" };
+    error: { error: AppWideError | "ALREADY_RESERVED" | "INVALID_INPUT" | "NOT_A_SHIFT" };
   };
   "/shifts/list": {
     input: Record<string, never>;
@@ -112,13 +113,13 @@ export type ShiftMarketWireHttp = {
   };
   "/reservations/reserve": {
     input: {
-      "resource": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>>;
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
       "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>>;
     };
     output: {
       "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>>, ["reservation"]>>;
     };
-    error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" };
+    error: { error: HttpAppWideError | "CONFLICT" | "INTERNAL_ERROR" | "INVALID_REQUEST" };
   };
   "/shifts/list": {
     input: Record<string, never>;

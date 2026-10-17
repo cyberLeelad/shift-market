@@ -1,42 +1,38 @@
 Most minimal product/first steps:
 
-1. Sees landing page: calendar; alphabetized list of shifts, which can be **encoded** as yyyy-mm-dd-day-military_start_time-end_time (that way they do in fact appear in the correct order), but **display** in a more readable format such as "Friday (10/16) 4pm-6pm." Initialized with pre-populated standard FRED DESK shifts (2 hour blocks, 8am-12am, M-Su, weekly).
-
-   - [ ] Support weekly shifts [15min (hopefully) (30 min) (realistic)]
-
-2. Claim weekly shift. "Calendar" updates appropriately after each change.
-
-   - [ ] This uses Reserving and Provisioning which are both already done, so also a priority.
-
-   - [ ] Make the button on the calendar functional.
-
-3. Claim one-off shift
-
 4. Release one date of weekly shift
 
    - [ ] 3rd feature (requires Offering)
 
-5. Reclaim her own punted shift
-
 6. Release weekly shift (all instances)
 
-The 4th concept (Expiring) is also kind of important here, but... I'm scared about time >_<
-
-- [ ] Make shifts more readable and/or calendar display
+- [ ] Expiring
 
 - [ ] [30min] any add'l needed work to flesh out feedback
 
 - [ ] Ctrl-F everywhere for "TODO" (perhaps I can do this more efficiently from the command line somehow)
 
+Later:
+
 - [ ] Find out if design/concepts/Provisioning.md makeWeeklyShifts can return a set, and how to specify that
 
-- [ ] Allow desk captain to delete shifts
+- [ ] Authenticating
+
+   - [ ] Allow desk captain to delete shifts
+
+   - [ ] Only desk captains can create shifts or even see the "add shifts" menu
 
 - [ ] Change Provisioning._all to also return "isWeeklyShift," as determined by whether or not it's linked to anything else. (I think this is a reasonable way to determine whether it's a weekly shift?)
 
-- [ ] Disallow creating shifts in the past.
+   - [ ] Then you can add the ability to release all occurances of a weekly shift.
 
-- [ ] Disallow interacting with past shifts.
+   - [ ] UI symbol has a little ↻ on repeating shifts
+
+- Temporality
+
+   - [ ] Disallow creating shifts in the past
+
+   - [ ] Disallow interacting with past shifts
 
 - [ ] Calendar size varies depending on actual shift schedule
 
@@ -103,6 +99,18 @@ Writing stuff
 Completed tasks:
 
 P2
+
+- [x] Make shifts more readable and/or calendar display
+
+- [x] Claim one shift. "Calendar" updates appropriately after each change.
+
+   - [x] This uses Reserving and Provisioning which are both already done, so also a priority.
+
+   - [x] Make the button on the calendar functional.
+
+- [x] Sees landing page: calendar; alphabetized list of shifts, which can be **encoded** as yyyy-mm-dd-day-military_start_time-end_time (that way they do in fact appear in the correct order), but **display** in a more readable format such as "Friday (10/16) 4pm-6pm." Initialized with pre-populated standard FRED DESK shifts (2 hour blocks, 8am-12am, M-Su, weekly).
+
+   - [x] Support weekly shifts [15min (hopefully) (30 min) (realistic)]
 
 - [x] User journey: Drafted, need to revise later.
 

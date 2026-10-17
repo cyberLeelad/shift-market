@@ -121,8 +121,8 @@ then
 ### Reservations.Cancel
 
 Authored path: `Reservations.Cancel`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 11.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 15.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 18.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 21.
 
 ```reaction
 when RequestBoundary.request (path: "/reservations/cancel", requestId, reservation)
@@ -133,8 +133,8 @@ then
 ### Reservations.Cancel#2
 
 Authored path: `Reservations.Cancel`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 11.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 15.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 18.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 21.
 
 ```reaction
 when Reserving.cancel (reservation), asked by Reservations.Cancel
@@ -156,6 +156,20 @@ then
   RequestBoundary.respond (book: former "the reservation book", requestId)
 ```
 
+### Reservations.RejectUnknownShift
+
+Authored path: `Reservations.RejectUnknownShift`.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 11.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 15.
+
+```reaction
+when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource) has (exists: false)
+then
+  RequestBoundary.respond (error: "NOT_A_SHIFT", requestId)
+```
+
 ### Reservations.Reserve
 
 Authored path: `Reservations.Reserve`.
@@ -164,6 +178,8 @@ Authored path: `Reservations.Reserve`.
 
 ```reaction
 when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource) has (exists: true)
 then
   Reserving.reserve (resource, user)
 ```
