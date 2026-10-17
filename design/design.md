@@ -76,91 +76,15 @@ Staff can use *Offering* to offer their shift for others to cover. Once someone 
 
 ### Provisioning
 
-```
-concept Provisioning
-
-purpose provision time slots (shifts) for filling in advance
-
-principle shifts can be made
-
-state
-  a set of Shifts with
-    a start Time
-    an end Time
-    a Date
-    an optional set of linked Shifts
-
-actions
-  makeShift (start: Time, end: Time, date: Date) : (shift: Shift)
-    where start < end
-    then create a new shift with the given parameters and return it
-
-  makeWeeklyShift (start: Time, end: Time, day: number, first: Date, last: Date) : (shifts: set of Shift)
-    where start < end, first <= last
-    then call makeShift to create new shifts, one for each week between first and last (inclusive),
-    with each's linked Shifts containing all other shifts created in this call.
-    create a set with all the newly-created shifts and return it
-```
+[Provisioning.md](concepts/Provisioning.md)
 
 ### Reserving
 
-```
-concept Reserving [User, Resource]
-
-purpose secure future access to a limited resource
-
-principle a user can reserve a resource for future use,
-  then users cannot reserve that resource
-  unless the reservation has been canceled
-
-state
-  a set of Reservations with
-    a User
-    a Resource
-
-actions
-  reserve (user: User, resource: Resource) : (reservation: Reservation)
-    where resource is not in Claimed or Reservations
-    then create a Reservation with user and resource,
-    add it to Reservations, and return it
-  
-  cancel (reservation: Reservation)
-    then cancel the reservation by deleting it from Reservations
-```
+[Reserving.md](concepts/Reserving.md)
 
 ### Offering
 
-```
-concept Offering [User, Item]
-
-purpose unwanted items can find users who want them
-
-principle Users and non-users (e.g. computer) can offer up items,
-  which can then be claimed by users.
-
-state
-  an set of Offers with
-    an optional current owner User
-    an Item
-  a Claimed set of Offers
-
-actions
-  offer (item: Item, user?: User) : (offer: Offer)
-    where there is no current unclaimed offer with this item
-    then create a new offer with user and item
-  
-  claim (user: User, offer: Offer)
-    where offer exists in Offers and is not claimed
-    then add offer to Claimed
-    
-  _hasOffer (item: Item) : (hasOffer: boolean)
-    where item is in Offers
-    then return true
-    
-  _getOffer (item: Item) : (offer: Offer)
-    where item is in Offers
-    then return that Offer
-```
+[Offering.md](concepts/Offering.md)
 
 ### Expiring
 
