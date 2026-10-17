@@ -2,19 +2,25 @@ Most minimal product/first steps:
 
 1. Sees landing page: calendar; alphabetized list of shifts, which can be **encoded** as yyyy-mm-dd-day-military_start_time-end_time (that way they do in fact appear in the correct order), but **display** in a more readable format such as "Friday (10/16) 4pm-6pm." Initialized with pre-populated standard FRED DESK shifts (2 hour blocks, 8am-12am, M-Su, weekly).
 
-   1. You basically have this right now. Just remove the UI to add shifts & list the reservations in alphabetical order. ==> No, that doesn't work, because some will be unreserved and thus not show up.
-
-   2. Going to need to build Provisioning, to start with.
+   - [ ] Support weekly shifts [15min (hopefully) (30 min) (realistic)]
 
 2. Claim weekly shift. "Calendar" updates appropriately after each change.
+
+   - [ ] This uses Reserving and Provisioning which are both already done, so also a priority.
 
 3. Claim one-off shift
 
 4. Release one date of weekly shift
 
+   - [ ] 3rd feature (requires Offering)
+
 5. Reclaim her own punted shift
 
 6. Release weekly shift (all instances)
+
+The 4th concept (Expiring) is also kind of important here, but... I'm scared about time >_<
+
+- [ ] Make shifts more readable and/or calendar display
 
 - [ ] [30min] any add'l needed work to flesh out feedback
 
