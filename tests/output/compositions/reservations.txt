@@ -1,0 +1,14 @@
+bun test v1.4.2 (744846f84)
+
+tests/compositions/Reservations.test.ts:
+(pass) Reservations > its principle: a shift is reserved by one person, refused to another, and free again after cancelling [313.19ms]
+(pass) Reservations > the list is empty when nothing is reserved [2.36ms]
+(pass) Reservations > one person can hold several shifts, and cancelling one leaves the others [60.66ms]
+(pass) Reservations > a resource that is not a shift is refused with NOT_A_SHIFT, and nothing is reserved [2.66ms]
+(pass) Reservations > cancelling a reservation twice, or one that never existed, is refused and changes nothing [56.04ms]
+(pass) Reservations > two people reserving the same shift at once: exactly one succeeds and the other gets CONFLICT [64.88ms]
+
+ 6 pass
+ 0 fail
+ 11 expect() calls
+Ran 6 tests across 1 file. [615.00ms]
