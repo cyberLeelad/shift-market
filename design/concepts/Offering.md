@@ -6,7 +6,7 @@ Unwanted items can find users who want them.
 
 ## Principle
 
-Users and non-users (e.g. system) can offer up items, which can then be claimed by users.
+Users and non-users (e.g. system) can offer up items, which can then be claimed (resolved) by users.
 
 ## Types
 
@@ -22,28 +22,30 @@ external Item
 
 ```state
 a set of Offers with
-  an optional owner User
+  an owner User
   an Item
 
 a set of Closed Offers
+
+Rule: an item has at most one offer that is not in Closed.
 ```
 
 ## Actions
 
 ```actions
-offer(item: Item, user?: User) : returns (offer: Offer)
+offer(item: Item, owner: User) : returns (offer: Offer)
   where there is no offer with this item or all offers are also in Closed
   then
-    create a new offer with user and item
+    create a new offer with owner and item
     returns offer
-  where there is an offer that is not in Closed and user is offer's user
+  where there is an offer that is not in Closed with owner
   then
-    refuses ALREADY_OFFERED "Item is already up for offer by this user."
-  where there is an offer that is not Closed and user is not the offer's user
+    refuses ALREADY_OFFERED "Item is already up for offer by this owner."
+  where there is an offer that is not Closed and with a different owner
   then
-    refuses ANOTHERS_OFFER "Cannot offer an item already offered by another user."
+    refuses ANOTHERS_OFFER "Cannot offer an item already offered by another owner."
 
-claim(user: User, offer: Offer) : returns ()
+resolve(offer: Offer) : returns ()
   where offer exists in Offers and is not in Closed
   then
     add offer to Closed Offers
@@ -60,10 +62,8 @@ claim(user: User, offer: Offer) : returns ()
 
 ```queries
 _getOffer(item: Item) : optional (offer: Offer)
-  where there is an open offer for this item
-  then
-    returns offer
-  where the item has no open offer
-  then
-    returns
+  Answers the open offer for this item, if one exists.
+
+_openOffers() : many (offer: Offer)
+  Answers any and all open offers.
 ```
