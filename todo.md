@@ -2,19 +2,15 @@
 
 # Current plan
 
-1. Restore old compositions, `Shifts` and `Reservations`, and remove `Offering` concept.
+1. Add back the `Offering` concept and verify it with test cases.
 
-2. If the app works as it used to, continue. If it doesn't, perhaps just roll back everything. Once things work as they used to, proceed.
+2. Incrementally develop the `Shifts` composition to make the `Reservations` composition redundant. Update frontend at each step.
 
-3. Add back the `Offering` concept and verify it with test cases.
+3. Delete `Reservations` in its entirety (design, src, and tests).
 
-4. Incrementally develop the `Shifts` composition to make the `Reservations` composition redundant. Update frontend at each step.
+4. Incrementally develop the `Shifts` composition to match my most recently spec for `Shifts` as of last night ([this commit](https://github.com/cyberLeelad/shift-market/tree/30b7140b3fc7ca839f14305979f98a23ba357394) or [this commit](https://github.com/cyberLeelad/shift-market/tree/cda8e38a23b326f766c4405c8e4f2b0d40f627aa)). Update frontend at each step.
 
-5. Delete `Reservations` in its entirety (design, src, and tests).
-
-6. Incrementally develop the `Shifts` composition to match my most recently spec for `Shifts` as of last night ([this commit](https://github.com/cyberLeelad/shift-market/tree/30b7140b3fc7ca839f14305979f98a23ba357394) or [this commit](https://github.com/cyberLeelad/shift-market/tree/cda8e38a23b326f766c4405c8e4f2b0d40f627aa)). Update frontend at each step.
-
-7. Take stock of current position and decide what to add next from a functionality point of view (not concepts point of view). Then, determine what concepts and/or compositions are needed, and work incrementally.
+5. Take stock of current position and decide what to add next from a functionality point of view (not concepts point of view). Then, determine what concepts and/or compositions are needed, and work incrementally.
 
 # Clean-up steps (5 min each)
 
