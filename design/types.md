@@ -20,4 +20,8 @@ instantiate Reserving with
 
 instantiate Provisioning with
   Time is ClockTime
+
+instantiate Offering with
+  User is Kerberos
+  Item is Shift
 ```

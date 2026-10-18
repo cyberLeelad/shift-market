@@ -2,7 +2,7 @@
 
 # Current plan
 
-1. Add back the `Offering` concept and verify it with test cases.
+1. Wire in Offering.
 
 2. Incrementally develop the `Shifts` composition to make the `Reservations` composition redundant. Update frontend at each step.
 
@@ -40,33 +40,29 @@ On each step,
 
 ## Spec
 
-- [ ] For each new concept, write its spec in `design/concepts/`, then update `design/types.md` and any compositions. Run `bun run check:design` after each change.
+- [ ] Concept only: Write its spec in `design/concepts/`.  Run `bun run check:design`. Update `design/types.md` with this new concept.
 
-- [ ] Write test cases
+- [ ] Write any new compositions or edit existing ones in `design/compositions/`. Run `bun run check:design`.
+
+- [ ] Write test cases for the concept and/or composition.
 
 ## Backend
 
-- [ ] Write `src/concepts/ConceptName.ts`. Run `bun run check:design` and `bun run check`.
+- [ ] Implement concept in `src/concepts/`. Run `bun run generate`, `bun run check`, and `bun run tests`.
 
-- [ ] Update `src/concepts.ts`.
+- [ ] Wire concept into `src/concepts.ts`, and `src/assembly.ts`
 
-- [ ] Write endpoints in `src/compositions/CompositionName.ts`.
+- [ ] Implement or update any related compositions in `src/compositions/`, including endpoints. Run `bun run generate`, `bun run check`, and `bun run tests`.
 
-- [ ] Update `src/assembly.ts` and `generated.config.ts`. Run `bun run generate` and then `bun run check`.
+- [ ] If a new composition was added, wire it into `src/assembly.ts` and `generated.config.ts`.
 
-- [ ] `src/http.ts`: Define what code the API will send when the request results throws an error.
-
-- [ ] Run the backend: `bun run db:up`, `bun run dev:backend`.
-
-- [ ] Pass test cases
+- [ ] Define what code the API will send when the request results throws an error in `src/http.ts`.
 
 ## Frontend
 
-- [ ] Update what displays using `web/index.html`.
+- [ ] Update frontend in `App.vue`.
 
-- [ ] Update `web/app.ts` with any new calls (to locate data for `web/index.html` to display).
-
-- [ ] bun run start runs both frontend & backend servers together. View site to test feature.
+- [ ] View site to test feature.
 
 # Document progress in design notebook
 

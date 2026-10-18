@@ -18,5 +18,15 @@ const provisioning = registerConcept({
   },
 });
 
-export const applicationConceptSet = conceptSet({ Reserving: reserving, Provisioning: provisioning });
+import offeringSpec from "@design/concepts/Offering.md" with {type: "text"};
+import { OfferingConcept, AlreadyOffered, AnothersOffer, AlreadyClaimed, NoSuchOffer } from "./concepts/Offering.ts";
+const offering = registerConcept({
+  class: OfferingConcept,
+  spec: offeringSpec,
+  refusals: {
+    ALREADY_OFFERED: AlreadyOffered, ANOTHERS_OFFER: AnothersOffer, ALREADY_CLAIMED: AlreadyClaimed, NO_SUCH_OFFER: NoSuchOffer
+  }
+})
+
+export const applicationConceptSet = conceptSet({ Reserving: reserving, Provisioning: provisioning, Offering: offering });
 export const { concepts } = applicationConceptSet;
