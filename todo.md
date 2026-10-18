@@ -1,3 +1,7 @@
+Finish migrating composition -- need to build a test suite + ensure my frontend is using the correct endpoints.
+
+---
+
 Most minimal product/first steps:
 
 4. Release one date of weekly shift
