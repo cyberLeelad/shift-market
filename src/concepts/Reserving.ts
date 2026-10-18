@@ -47,4 +47,9 @@ export class ReservingConcept {
     const rows = await this.reservations.find().sort({ resource: 1 }).toArray();
     return rows.map(({ _id, user, resource }) => ({ reservation: _id, user, resource }));
   }
+
+  async _holderOf({ resource }: { resource: string }) {
+    const found = await this.reservations.findOne({ resource }, { projection: { _id: 1, user: 1 } });
+    return found ? [{ reservation: found._id, user: found.user }] : [];
+  }
 }

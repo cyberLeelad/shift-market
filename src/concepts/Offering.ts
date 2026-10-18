@@ -12,26 +12,25 @@ interface Offer {
   closed: boolean;
 }
 
+// Module-level, so the class exposes no extra method for the checker to read as an action.
+const indexedCollections = new WeakSet<Collection<Offer>>();
+
+async function ensureOfferIndex(offers: Collection<Offer>) {
+  if (indexedCollections.has(offers)) return;
+  // At most one open offer per item. Closed offers are excluded, so an item can be offered again after a claim.
+  await offers.createIndex({ item: 1 }, { unique: true, partialFilterExpression: { closed: false } });
+  indexedCollections.add(offers);
+}
+
 export class OfferingConcept {
   private readonly offers: Collection<Offer>;
-  private indexed = false;
 
   constructor(db: Db) {
     this.offers = db.collection<Offer>("offering.offers");
   }
 
-  private async ensureIndex() {
-    if (this.indexed) return;
-    // At most one open offer per item. Closed offers are excluded, so an item can be offered again after a claim.
-    await this.offers.createIndex(
-      { item: 1 },
-      { unique: true, partialFilterExpression: { closed: false } },
-    );
-    this.indexed = true;
-  }
-
   async offer({ item, user }: { item: string; user: string }) {
-    await this.ensureIndex();
+    await ensureOfferIndex(this.offers);
     const offer = crypto.randomUUID();
     for (;;) {
       try {

@@ -53,4 +53,7 @@ cancel(reservation: Reservation) : returns (reservation: Reservation)
 ```queries
 _all() : many (reservation: Reservation, user: User, resource: Resource)
   Answers every reservation, ordered by resource, and no rows when there are none.
+
+_holderOf(resource: Resource) : optional (reservation: Reservation, holder: User)
+  Answers the holder of the resource, if there is a reservation on it.
 ```
