@@ -38,13 +38,4 @@ const RejectUnknownShift = endpoint(
       .then(respond({ error: "NOT_A_SHIFT" })),
 );
 
-const Cancel = endpoint(
-  "/reservations/cancel",
-  ({ reservation }) =>
-    receive({ reservation })
-      .then(Reserving.cancel({ reservation }).responds({ reservation }))
-      .then(respond({ reservation })),
-  { input: { required: ["reservation"] } },
-);
-
-export const composition = { ReservationBook, List, Reserve, RejectUnknownShift, Cancel };
+export const composition = { ReservationBook, List, Reserve, RejectUnknownShift };

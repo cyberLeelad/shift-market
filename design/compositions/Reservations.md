@@ -14,9 +14,3 @@ A staff member [reserves a shift](reaction:Reservations.Reserve) under their ker
 Reservations.Reserve at /reservations/reserve
 Reservations.RejectUnknownShift at /reservations/reserve
 ```
-
-Theoretically, someone could [cancel a reservation](reaction:Reservations.Cancel).
-
-```endpoints
-Reservations.Cancel at /reservations/cancel
-```
