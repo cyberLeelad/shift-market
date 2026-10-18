@@ -2,9 +2,9 @@
 
 # Current plan
 
-1. Wire in Offering.
+1. Incrementally develop the `Shifts` composition to make the `Reservations` composition redundant, modeling after my [most recently spec](https://github.com/cyberLeelad/shift-market/blob/cda8e38a23b326f766c4405c8e4f2b0d40f627aa/design/compositions/Shifts.md). Update frontend at each step.
 
-2. Incrementally develop the `Shifts` composition to make the `Reservations` composition redundant. Update frontend at each step.
+**You are here.**
 
 3. Delete `Reservations` in its entirety (design, src, and tests).
 
@@ -21,6 +21,8 @@
 - [ ] In design/design.md's pitch, replace marketing phrasing with plainer wording. (P1 feedback)
 
 - [ ] Find out if design/concepts/Provisioning.md makeWeeklyShifts can return a set, and how to specify that
+
+- [ ] Clean up `README.md` in both repos.
 
 # Critical features
 

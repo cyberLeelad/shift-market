@@ -51,7 +51,7 @@ export class OfferingConcept {
     }
   }
 
-  async resolve({ offer }: { user: string; offer: string }) {
+  async resolve({ offer }: { offer: string }) {
     // Matching on closed: false makes the check and the close one atomic step.
     const result = await this.offers.updateOne({ _id: offer, closed: false }, { $set: { closed: true } });
     if (result.matchedCount === 1) return {};

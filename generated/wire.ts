@@ -5,7 +5,6 @@ import type { applicationConceptSet as ApplicationConceptSet } from "../src/conc
 
 type AtPath<T, P extends readonly string[]> = P extends readonly [infer H extends string, ...infer R extends string[]] ? H extends keyof T ? AtPath<T[H], R> : H extends `${number}` ? T extends readonly (infer Item)[] ? AtPath<Item, R> : never : never : T;
 type QueryRow<T> = T extends readonly (infer Row)[] ? Row : T;
-type AllOf<T extends readonly unknown[]> = T extends readonly [infer Head, ...infer Rest] ? Head & AllOf<Rest> : unknown;
 type OneOf<T extends readonly unknown[]> = T[number];
 type Jsonify<T> = T extends Date ? string : T extends null | boolean | number | string ? T : T extends (...args: never[]) => unknown ? never : T extends readonly (infer Item)[] ? Jsonify<Item>[] : T extends object ? { [K in keyof T]: Jsonify<T[K]> } : never;
 
@@ -14,15 +13,6 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
 export type AppWideError = never;
 
 export type ShiftMarketWire = {
-  "/reservations/cancel": {
-    input: {
-      "reservation": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["cancel"]>[0], ["reservation"]>>;
-    };
-    output: {
-      "reservation": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["cancel"]>[0], ["reservation"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["cancel"]>>, ["reservation"]>]>>;
-    };
-    error: { error: AppWideError | "INVALID_INPUT" | "NO_SUCH_RESERVATION" };
-  };
   "/reservations/list": {
     input: Record<string, never>;
     output: {
@@ -89,15 +79,6 @@ export type ShiftMarketWire = {
 export type HttpAppWideError = never;
 
 export type ShiftMarketWireHttp = {
-  "/reservations/cancel": {
-    input: {
-      "reservation": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["cancel"]>[0], ["reservation"]>>;
-    };
-    output: {
-      "reservation": Jsonify<AllOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["cancel"]>[0], ["reservation"]>, AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["cancel"]>>, ["reservation"]>]>>;
-    };
-    error: { error: HttpAppWideError | "INVALID_REQUEST" | "NOT_FOUND" };
-  };
   "/reservations/list": {
     input: Record<string, never>;
     output: {

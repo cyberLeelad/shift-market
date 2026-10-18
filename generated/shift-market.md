@@ -8,6 +8,30 @@ _specifications and composition source, then regenerate this file._
 
 ## Concepts
 
+### Offering
+
+Defined in [Offering](../design/concepts/Offering.md), line 1.
+
+#### Actions
+
+- `offer(item: Item, user: User) : returns (offer: Offer)`
+  - Refuses `ALREADY_OFFERED`: Item is already up for offer by this owner.
+  - Refuses `ANOTHERS_OFFER`: Cannot offer an item already offered by another owner.
+- `resolve(offer: Offer) : returns ()`
+  - Refuses `ALREADY_CLAIMED`: Cannot claim a closed offer.
+  - Refuses `NO_SUCH_OFFER`: Cannot claim an offer that does not exist.
+
+#### Queries
+
+- `_getOffer(item: Item) : optional (offer: Offer)`
+- `_openOffers() : many (offer: Offer)`
+
+#### Instances
+
+- `Offering` — instance of `Offering` — [Application types](../design/types.md), line 24.
+  - `Item` is `Shift` — [Application types](../design/types.md), line 26.
+  - `User` is `Kerberos` — [Application types](../design/types.md), line 25.
+
 ### Provisioning
 
 Defined in [Provisioning](../design/concepts/Provisioning.md), line 1.
@@ -117,32 +141,6 @@ where
   earlier, RequestBoundary.request (requestId)
 then
   RequestBoundary.respond (error: message, requestId)
-```
-
-### Reservations.Cancel
-
-Authored path: `Reservations.Cancel`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 18.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 21.
-
-```reaction
-when RequestBoundary.request (path: "/reservations/cancel", requestId, reservation)
-then
-  Reserving.cancel (reservation)
-```
-
-### Reservations.Cancel#2
-
-Authored path: `Reservations.Cancel`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 18.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 21.
-
-```reaction
-when Reserving.cancel (reservation), asked by Reservations.Cancel
-where
-  earlier, RequestBoundary.request (path: "/reservations/cancel", requestId, reservation)
-then
-  RequestBoundary.respond (requestId, reservation)
 ```
 
 ### Reservations.List
@@ -270,7 +268,6 @@ object or lacks a required key. The response uses `INVALID_INPUT` and names
 the path or missing key. A declared default fills an absent key. Endpoints
 not listed here have no explicit input contract.
 
-- `/reservations/cancel` — requires `reservation`
 - `/reservations/reserve` — requires `user`, `resource`
 - `/shifts/makeOne` — requires `start`, `end`, `date`
 - `/shifts/makeWeekly` — requires `start`, `end`, `day`, `first`, `last`
