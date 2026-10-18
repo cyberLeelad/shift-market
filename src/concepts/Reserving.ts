@@ -50,6 +50,6 @@ export class ReservingConcept {
 
   async _holderOf({ resource }: { resource: string }) {
     const found = await this.reservations.findOne({ resource }, { projection: { _id: 1, user: 1 } });
-    return found ? [{ reservation: found._id, user: found.user }] : [];
+    return found ? [{ reservation: found._id, holder: found.user }] : [];
   }
 }

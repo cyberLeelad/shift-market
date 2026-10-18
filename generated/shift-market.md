@@ -45,6 +45,7 @@ Defined in [Reserving](../design/concepts/Reserving.md), line 1.
 #### Queries
 
 - `_all() : many (reservation: Reservation, user: User, resource: Resource)`
+- `_holderOf(resource: Resource) : optional (reservation: Reservation, holder: User)`
 
 #### Instances
 
