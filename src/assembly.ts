@@ -1,25 +1,17 @@
 import { assemble } from "@mit-sdg/sync-engine/assembly";
-// Compositions
-import { composition as shifts } from "./compositions/Shifts.ts";
-
-// Concepts
-import { OfferingConcept } from "./concepts/Offering.ts";
-import { ProvisioningConcept } from "./concepts/Provisioning.ts";
+import { composition as reservationsComposition } from "./compositions/Reservations.ts";
+import { composition as shiftsComposition } from "./compositions/Shifts.ts";
 import { ReservingConcept } from "./concepts/Reserving.ts";
-
 import { applicationConceptSet } from "./concepts.ts";
 import { db } from "./db.ts";
-import type { Db } from "mongodb";
+import { ProvisioningConcept } from "./concepts/Provisioning.ts";
 
-export function assembleApplication(database: Db = db) {
+export function assembleApplication() {
   return assemble({
     conceptSet: applicationConceptSet,
-    instances: {
-      Reserving: new ReservingConcept(database),
-      Provisioning: new ProvisioningConcept(database),
-      Offering: new OfferingConcept(database),
-    },
-    composition: { Shifts: shifts },
+    instances: { Reserving: new ReservingConcept(db), Provisioning: new ProvisioningConcept(db)},
+    composition: { Reservations: reservationsComposition, Shifts: shiftsComposition },
+    // Print what went wrong. Otherwise a failure only shows up as INTERNAL_ERROR.
     rawFaultReporter: ({ error }) => console.error(error),
   });
 }

@@ -10,8 +10,9 @@ export default {
     version: 1,
     documents: [
       new URL("./design/types.md", import.meta.url),
+      new URL("./design/compositions/Reservations.md", import.meta.url),
       new URL("./design/compositions/Shifts.md", import.meta.url),
-      // ADD MORE COMPOSITIONS HERE (if you add more)
+      // ADD MORE CONCEPTS HERE (if you add more)
     ],
   },
   projections: [httpWire({ policy, name: "ShiftMarketWireHttp" })],
