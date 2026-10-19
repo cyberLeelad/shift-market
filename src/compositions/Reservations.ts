@@ -4,20 +4,6 @@ import { concepts } from "../concepts.ts";
 
 const { Reserving, Provisioning } = concepts;
 
-const ReservationBook = former("the reservation book", (_input, { reservation, user, resource }) =>
-  form({
-    reservations: each(Reserving._all({}).is({ reservation, user, resource })).form({
-      reservation,
-      user,
-      resource,
-    }),
-  }),
-);
-
-const List = endpoint("/reservations/list", () =>
-  receive({}).then(respond({ book: ReservationBook({}) })),
-);
-
 // Alternative 1: the resource is an existing shift, so reserve it.
 const Reserve = endpoint(
   "/reservations/reserve",
@@ -38,4 +24,4 @@ const RejectUnknownShift = endpoint(
       .then(respond({ error: "NOT_A_SHIFT" })),
 );
 
-export const composition = { ReservationBook, List, Reserve, RejectUnknownShift };
+export const composition = { Reserve, RejectUnknownShift };

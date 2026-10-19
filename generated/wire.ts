@@ -13,19 +13,6 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
 export type AppWideError = never;
 
 export type ShiftMarketWire = {
-  "/reservations/list": {
-    input: Record<string, never>;
-    output: {
-      "book": {
-        "reservations": {
-          "reservation": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_all"]>>>, ["reservation"]>>;
-          "resource": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_all"]>>>, ["resource"]>>;
-          "user": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_all"]>>>, ["user"]>>;
-        }[];
-      };
-    };
-    error: { error: AppWideError };
-  };
   "/reservations/reserve": {
     input: {
       "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
@@ -40,12 +27,13 @@ export type ShiftMarketWire = {
     input: Record<string, never>;
     output: {
       "organizer": {
-        "shifts": {
+        "shifts": ({
           "date": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["date"]>>;
           "end": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["end"]>>;
+          "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
           "shift": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["shift"]>>;
           "start": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["start"]>>;
-        }[];
+        })[];
       };
     };
     error: { error: AppWideError };
@@ -79,19 +67,6 @@ export type ShiftMarketWire = {
 export type HttpAppWideError = never;
 
 export type ShiftMarketWireHttp = {
-  "/reservations/list": {
-    input: Record<string, never>;
-    output: {
-      "book": {
-        "reservations": {
-          "reservation": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_all"]>>>, ["reservation"]>>;
-          "resource": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_all"]>>>, ["resource"]>>;
-          "user": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_all"]>>>, ["user"]>>;
-        }[];
-      };
-    };
-    error: { error: HttpAppWideError };
-  };
   "/reservations/reserve": {
     input: {
       "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
@@ -106,12 +81,13 @@ export type ShiftMarketWireHttp = {
     input: Record<string, never>;
     output: {
       "organizer": {
-        "shifts": {
+        "shifts": ({
           "date": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["date"]>>;
           "end": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["end"]>>;
+          "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
           "shift": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["shift"]>>;
           "start": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["start"]>>;
-        }[];
+        })[];
       };
     };
     error: { error: HttpAppWideError };

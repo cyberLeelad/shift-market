@@ -90,19 +90,16 @@ Concrete types:
 _Formers name result shapes evaluated when asked. The source former owns_
 _the authored explanation; this section records the generated shape._
 
-### the reservation book
+### the holder of (shift)
 
-Authored path: `Reservations.ReservationBook`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 4.
+Authored path: `Shifts.holderOf`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 4.
 
 ```former
-Former "the reservation book" — inputs (); bindings (reservation, user, resource); promises exactly one record — forms:
+Former "the holder of (shift)" — inputs (shift); bindings (holder); promises at most one record — forms:
   a record of
-    reservations: each Reserving._all () has (reservation, resource, user)
-      form a record of
-        reservation
-        resource
-        user
+    where Reserving._holderOf (resource: shift) has (holder)
+    holder
 ```
 
 ### the shift organizer
@@ -119,6 +116,7 @@ Former "the shift organizer" — inputs (); bindings (shift, start, end, date); 
         end
         shift
         start
+        … former "the holder of (shift)" with (shift), with blank leaves if absent
 ```
 
 ## Reactions
@@ -143,23 +141,11 @@ then
   RequestBoundary.respond (error: message, requestId)
 ```
 
-### Reservations.List
-
-Authored path: `Reservations.List`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 3.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 7.
-
-```reaction
-when RequestBoundary.request (path: "/reservations/list", requestId)
-then
-  RequestBoundary.respond (book: former "the reservation book", requestId)
-```
-
 ### Reservations.RejectUnknownShift
 
 Authored path: `Reservations.RejectUnknownShift`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 11.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 15.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 4.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 8.
 
 ```reaction
 when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
@@ -172,8 +158,8 @@ then
 ### Reservations.Reserve
 
 Authored path: `Reservations.Reserve`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 10.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 14.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 3.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 7.
 
 ```reaction
 when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
@@ -186,8 +172,8 @@ then
 ### Reservations.Reserve#2
 
 Authored path: `Reservations.Reserve`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 10.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 14.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 3.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 7.
 
 ```reaction
 when Reserving.reserve (resource, user, reservation), asked by Reservations.Reserve

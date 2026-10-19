@@ -1,17 +1,18 @@
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
-import { each, form, former } from "@mit-sdg/sync-engine/language";
+import { each, form, former, where, whether, view } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 
-const { Provisioning } = concepts;
+const { Provisioning, Reserving } = concepts;
+
+const holderOf = former("the holder of (shift)", ({ shift }, { holder }) =>
+  where(Reserving._holderOf({ resource: shift }).is({ holder })).form({ holder }),
+).optional();
 
 const ShiftOrganizer = former("the shift organizer", (_input, { shift, start, end, date }) =>
   form({
-    shifts: each(Provisioning._all({}).is({ shift, start, end, date })).form({
-      shift,
-      start,
-      end,
-      date,
-    }),
+    shifts: each(Provisioning._all({}).is({ shift, start, end, date }))
+      .form({ shift, start, end, date })
+      .splicing(whether(holderOf({ shift }))),
   }),
 );
 
@@ -37,4 +38,4 @@ const MakeWeekly = endpoint(
   { input: { required: ["start", "end", "day", "first", "last"] } },
 );
 
-export const composition = { ShiftOrganizer, List, MakeOne, MakeWeekly };
+export const composition = { ShiftOrganizer, List, MakeOne, MakeWeekly, holderOf };

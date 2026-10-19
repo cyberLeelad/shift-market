@@ -9,8 +9,9 @@ type WeeklyDay = Parameters<typeof client.shifts.makeWeekly>[0]["day"];
 const DAY_OPTIONS: WeeklyDay[] = [
   "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
 ] as WeeklyDay[];
+enum STATUS { HELD, UNRESERVED };
 
-type ShiftRow = { shift: string; start: string; end: string; date: string };
+type ShiftRow = { shift: string; start: string; end: string; date: string, holder: string | null, status: STATUS };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PX_PER_MINUTE = 1;
@@ -29,11 +30,10 @@ const form = ref({
   start: "",
   end: "",
 });
-const shifts = ref<ShiftRow[]>([]);
-const claims = ref<Record<string, string>>({}); // shift id -> kerberos holding it
+const shiftRows = ref<ShiftRow[]>([]);
 const weekStart = ref(mondayOf(new Date()));
 
-// Helpers (same logic as app.ts)
+// Helpers
 function mondayOf(date: Date): Date {
   const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const offset = (d.getUTCDay() + 6) % 7;
@@ -76,14 +76,14 @@ const weekLabel = computed(() => `${toISO(days.value[0])} to ${toISO(days.value[
 const columns = computed(() =>
   days.value.map((day, i) => {
     const iso = toISO(day);
-    const { placed, lanes } = layoutDay(shifts.value.filter((s) => s.date === iso));
+    const { placed, lanes } = layoutDay(shiftRows.value.filter((s) => s.date === iso));
     return {
       iso,
       head: `${DAY_NAMES[i]} ${iso.slice(5)}`,
       blocks: placed.map(({ s, from, to, lane }) => ({
         key: s.shift,
         shift: s.shift,
-        holder: claims.value[s.shift],
+        holder: s.holder,
         label: `${s.start}-${clock(s.end)}${minutes(s.end) > 1440 ? " (next day)" : ""}`,
         style: {
           top: `${(from - CAL_START) * PX_PER_MINUTE}px`,
@@ -103,15 +103,10 @@ async function loadCalendar() {
     status.value = `Could not load shifts: ${result.error}`;
     return;
   }
-  const reservations = await client.reservations.list({});
-  if ("error" in reservations) {
-    status.value = `Could not load reservations: ${reservations.error}`;
-    return;
-  }
-  shifts.value = result.organizer.shifts;
-  claims.value = Object.fromEntries(
-    reservations.book.reservations.map((r) => [r.resource, r.user]),
-  );
+  shiftRows.value = result.organizer.shifts.map((s) => ({
+    ...s,
+    status: s.holder ? STATUS.HELD : STATUS.UNRESERVED,
+  }));
 }
 
 async function submitProvision() {

@@ -1,0 +1,8 @@
+bun test v1.4.2 (744846f84)
+
+tests/compositions/Shifts.test.ts:
+killed 2 dangling processes
+(fail) Shifts.MakeOne > creates a shift that the list reports [10009.17ms]
+  ^ a beforeEach/afterEach hook timed out for this test.
+Ran 1 test across 1 file. [10.22s]
+Bailed out after 1 failure

@@ -1,7 +1,7 @@
 # Shifts
 
-Anyone can [list the shifts](reaction:Shifts.List). The
-[shift organizer](former:Shifts.ShiftOrganizer) gathers them in table order from chronologically soonest to farthest.
+Anyone can [list the shifts and their holders (if existent)](reaction:Shifts.List). The
+[shift organizer](former:Shifts.ShiftOrganizer) gathers the the shift with [holder](former:Shifts.holderOf) in table order from chronologically soonest to farthest.
 
 ```endpoints
 Shifts.List at /shifts/list
