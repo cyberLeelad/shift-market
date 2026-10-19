@@ -124,7 +124,7 @@ async function claimShift(shift: string) {
     status.value = "Enter your kerberos first.";
     return;
   }
-  const result = await client.reservations.reserve({ user, resource: shift });
+  const result = await client.shifts.claim({ user, resource: shift });
   status.value = "error" in result ? `Could not claim: ${result.error}` : "Claimed!";
   await loadCalendar();
 }

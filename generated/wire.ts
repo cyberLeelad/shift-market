@@ -13,7 +13,7 @@ export type Json = null | boolean | number | string | Json[] | { [key: string]: 
 export type AppWideError = never;
 
 export type ShiftMarketWire = {
-  "/reservations/reserve": {
+  "/shifts/claim": {
     input: {
       "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
       "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>>;
@@ -67,7 +67,7 @@ export type ShiftMarketWire = {
 export type HttpAppWideError = never;
 
 export type ShiftMarketWireHttp = {
-  "/reservations/reserve": {
+  "/shifts/claim": {
     input: {
       "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
       "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>>;

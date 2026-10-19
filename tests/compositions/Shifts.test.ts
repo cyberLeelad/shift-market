@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { startShiftMarket } from "../support/app.ts";
 import { ok } from "../support/reusable/results.ts";
 
@@ -162,5 +162,64 @@ describe("Shifts.List", () => {
       ["2026-10-20", "17:00"],
       ["2026-10-21", "13:00"],
     ]);
+  });
+});
+
+// CLAIM
+async function makeShift(api: Market["api"]): Promise<string> {
+  return ok(await api.shifts.makeOne({ start: "09:00", end: "17:00", date: "2026-11-02" })).shift;
+}
+
+describe("Shifts.Claim", () => {
+  let api: Market["api"];
+
+  beforeEach(async () => {
+    ({ api } = await start());
+  });
+  
+  test("a staff member claims an open shift", async () => {
+    const { api } = await start();
+    const shift = await makeShift(api);
+
+    ok(await api.shifts.claim({ user: "rowan", resource: shift }));
+  });
+
+  test("an unknown shift is refused", async () => {
+    const { api } = await start();
+
+    const result = await api.shifts.claim({ user: "rowan", resource: crypto.randomUUID() });
+
+    expect(result).toHaveProperty("error");
+  });
+
+  test("a held shift is refused to other staff and to its holder", async () => {
+    const { api } = await start();
+    const shift = await makeShift(api);
+    ok(await api.shifts.claim({ user: "rowan", resource: shift }));
+
+    expect(await api.shifts.claim({ user: "sam", resource: shift })).toHaveProperty("error");
+    expect(await api.shifts.claim({ user: "rowan", resource: shift })).toHaveProperty("error");
+  });
+
+  test("simultaneous claims on one shift leave exactly one holder", async () => {
+    const { api } = await start();
+    const shift = await makeShift(api);
+    const users = ["ada", "ben", "cy", "dee", "eli"];
+
+    const results = await Promise.all(
+      users.map((user) => api.shifts.claim({ user, resource: shift })),
+    );
+
+    expect(results.filter((r) => !("error" in r))).toHaveLength(1);
+    expect(results.filter((r) => "error" in r)).toHaveLength(users.length - 1);
+  });
+
+  test("a claim without a user or resource is rejected", async () => {
+    const { api } = await start();
+
+    // @ts-expect-error: deliberately omitting required fields
+    const result = await api.shifts.claim({ user: "rowan" });
+
+    expect(result).toHaveProperty("error");
   });
 });

@@ -1,5 +1,4 @@
 import { assemble } from "@mit-sdg/sync-engine/assembly";
-import { composition as reservationsComposition } from "./compositions/Reservations.ts";
 import { composition as shiftsComposition } from "./compositions/Shifts.ts";
 import { ReservingConcept } from "./concepts/Reserving.ts";
 import { applicationConceptSet } from "./concepts.ts";
@@ -16,7 +15,7 @@ export function assembleApplication(database: Db = db) {
       Provisioning: new ProvisioningConcept(database),
       Offering: new OfferingConcept(database),
     },
-    composition: { Reservations: reservationsComposition, Shifts: shiftsComposition },
+    composition: { Shifts: shiftsComposition },
     rawFaultReporter: ({ error }) => console.error(error),
   });
 }

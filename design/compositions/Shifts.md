@@ -14,3 +14,9 @@ A desk captain [makes a shift](reaction:Shifts.MakeOne) or can
 Shifts.MakeOne at /shifts/makeOne
 Shifts.MakeWeekly at /shifts/makeWeekly
 ```
+
+A staff member [claims a shift](reaction:Shifts.Claim) under their kerberos if the resource exists and is not already held. An unknown or already held resource is refused.
+
+```endpoints
+Shifts.Claim at /shifts/claim
+```

@@ -1,5 +1,5 @@
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
-import { each, form, former, where, whether, view } from "@mit-sdg/sync-engine/language";
+import { each, form, former, where, whether, no } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 
 const { Provisioning, Reserving } = concepts;
@@ -38,4 +38,29 @@ const MakeWeekly = endpoint(
   { input: { required: ["start", "end", "day", "first", "last"] } },
 );
 
-export const composition = { ShiftOrganizer, List, MakeOne, MakeWeekly, holderOf };
+// 3 branches
+const Claim = endpoint("/shifts/claim", ({ resource: shift, user, reservation }) =>
+  receive({ resource: shift, user }).then(
+    // shift exists, not held -- reserve it
+    where(
+      Provisioning._exists({ shift }).is({ exists: true }),
+      no(Reserving._holderOf({ resource: shift })),
+    )
+      .then(Reserving.reserve({ resource: shift, user }).responds({ reservation }))
+      .then(respond({ reservation }))
+      .named("success"),
+    // shift doesn't exist
+    where(Provisioning._exists({ shift }).is({ exists: false }))
+      .then(respond({ error: "UNKNOWN_SHIFT" }))
+      .named("doesnt_exist"),
+    // shift exists and is held
+    where(
+      Provisioning._exists({ shift }).is({ exists: true }),
+      Reserving._holderOf({ resource: shift }),
+    )
+      .then(respond({ error: "TAKEN" }))
+      .named("already_reserved"),
+  ),
+);
+
+export const composition = { ShiftOrganizer, List, MakeOne, MakeWeekly, holderOf, Claim };
