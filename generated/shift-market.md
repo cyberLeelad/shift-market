@@ -141,42 +141,58 @@ then
   RequestBoundary.respond (error: message, requestId)
 ```
 
-### Reservations.RejectUnknownShift
-
-Authored path: `Reservations.RejectUnknownShift`.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 4.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 8.
-
-```reaction
-when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
-where
-  Provisioning._exists (shift: resource) has (exists: false)
-then
-  RequestBoundary.respond (error: "NOT_A_SHIFT", requestId)
-```
-
-### Reservations.Reserve
+### Reservations.Reserve:already_reserved
 
 Authored path: `Reservations.Reserve`.
 - Covered by [Reservations](../design/compositions/Reservations.md), line 3.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 7.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 6.
 
 ```reaction
 when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
 where
-  Provisioning._exists (shift: resource) has (exists: true)
+  Provisioning._exists (shift: resource)
+  Reserving._holderOf (resource)
+then
+  RequestBoundary.respond (error: "TAKEN", requestId)
+```
+
+### Reservations.Reserve:doesnt_exist
+
+Authored path: `Reservations.Reserve`.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 3.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 6.
+
+```reaction
+when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
+where
+  no Provisioning._exists (shift: resource)
+then
+  RequestBoundary.respond (error: "UNKNOWN_SHIFT", requestId)
+```
+
+### Reservations.Reserve:success
+
+Authored path: `Reservations.Reserve`.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 3.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 6.
+
+```reaction
+when RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource)
+  no Reserving._holderOf (resource)
 then
   Reserving.reserve (resource, user)
 ```
 
-### Reservations.Reserve#2
+### Reservations.Reserve:success#2
 
 Authored path: `Reservations.Reserve`.
 - Covered by [Reservations](../design/compositions/Reservations.md), line 3.
-- Covered by [Reservations](../design/compositions/Reservations.md), line 7.
+- Covered by [Reservations](../design/compositions/Reservations.md), line 6.
 
 ```reaction
-when Reserving.reserve (resource, user, reservation), asked by Reservations.Reserve
+when Reserving.reserve (resource, user, reservation), asked by Reservations.Reserve:success
 where
   earlier, RequestBoundary.request (path: "/reservations/reserve", requestId, resource, user)
 then
@@ -254,6 +270,6 @@ object or lacks a required key. The response uses `INVALID_INPUT` and names
 the path or missing key. A declared default fills an absent key. Endpoints
 not listed here have no explicit input contract.
 
-- `/reservations/reserve` — requires `user`, `resource`
+- `/reservations/reserve` — requires `resource`, `user`
 - `/shifts/makeOne` — requires `start`, `end`, `date`
 - `/shifts/makeWeekly` — requires `start`, `end`, `day`, `first`, `last`

@@ -1,27 +1,26 @@
 import { endpoint, receive, respond } from "@mit-sdg/sync-engine/boundary";
-import { each, form, former } from "@mit-sdg/sync-engine/language";
+import { where, no } from "@mit-sdg/sync-engine/language";
 import { concepts } from "../concepts.ts";
 
 const { Reserving, Provisioning } = concepts;
 
-// Alternative 1: the resource is an existing shift, so reserve it.
-const Reserve = endpoint(
-  "/reservations/reserve",
-  ({ user, resource, reservation, exists }) =>
-    receive({ user, resource })
-      .where(Provisioning._exists({ shift: resource }).is({ exists: true }))
-      .then(Reserving.reserve({ user, resource }).responds({ reservation }))
-      .then(respond({ reservation })),
-  { input: { required: ["user", "resource"] } },
+// 3 branches
+const Reserve = endpoint("/reservations/reserve", ({ resource: shift, user, reservation }) =>
+  receive({ resource: shift, user }).then(
+    // shift exists, but not reserved -- success
+    where(Provisioning._exists({ shift }), no(Reserving._holderOf({ resource: shift })))
+      .then(Reserving.reserve({ resource: shift, user: user }).responds({ reservation }))
+      .then(respond({ reservation }))
+      .named("success"),
+    // shift doesn't exist -- reject
+    where(no(Provisioning._exists({ shift })))
+      .then(respond({ error: "UNKNOWN_SHIFT" }))
+      .named("doesnt_exist"),
+    // shift exists  but is held -- reject
+    where(Provisioning._exists({ shift }), Reserving._holderOf({ resource: shift }))
+      .then(respond({ error: "TAKEN" }))
+      .named("already_reserved"),
+  ),
 );
 
-// Alternative 2: the resource is not a shift, so refuse without reserving anything.
-const RejectUnknownShift = endpoint(
-  "/reservations/reserve",
-  ({ user, resource, exists }) =>
-    receive({ user, resource })
-      .where(Provisioning._exists({ shift: resource }).is({ exists: false }))
-      .then(respond({ error: "NOT_A_SHIFT" })),
-);
-
-export const composition = { Reserve, RejectUnknownShift };
+export const composition = { Reserve };

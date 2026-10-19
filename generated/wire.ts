@@ -21,7 +21,7 @@ export type ShiftMarketWire = {
     output: {
       "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>>, ["reservation"]>>;
     };
-    error: { error: AppWideError | "ALREADY_RESERVED" | "INVALID_INPUT" | "NOT_A_SHIFT" };
+    error: { error: AppWideError | "ALREADY_RESERVED" | "INVALID_INPUT" | "TAKEN" | "UNKNOWN_SHIFT" };
   };
   "/shifts/list": {
     input: Record<string, never>;
