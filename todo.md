@@ -2,12 +2,6 @@
 
 # Current plan
 
-1. Incrementally develop the `Shifts` composition to make the `Reservations` composition redundant, modeling after my [most recently spec](https://github.com/cyberLeelad/shift-market/blob/cda8e38a23b326f766c4405c8e4f2b0d40f627aa/design/compositions/Shifts.md). Update frontend at each step.
-
-**You are here.**
-
-3. Delete `Reservations` in its entirety (design, src, and tests).
-
 4. Incrementally develop the `Shifts` composition to match my most recently spec for `Shifts` as of last night ([this commit](https://github.com/cyberLeelad/shift-market/tree/30b7140b3fc7ca839f14305979f98a23ba357394) or [this commit](https://github.com/cyberLeelad/shift-market/tree/cda8e38a23b326f766c4405c8e4f2b0d40f627aa)). Update frontend at each step.
 
 5. Take stock of current position and decide what to add next from a functionality point of view (not concepts point of view). Then, determine what concepts and/or compositions are needed, and work incrementally.
