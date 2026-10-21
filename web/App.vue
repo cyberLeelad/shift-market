@@ -211,6 +211,10 @@ function shiftWeek(weeks: number) {
   weekStart.value = new Date(weekStart.value.getTime() + weeks * 7 * DAY_MS);
 }
 
+function goToCurrentWeek() {
+  weekStart.value = mondayOf(new Date());
+}
+
 function openProvision() {
   if (!isCaptain.value) {
     accessNotice.value = "Only captain can open this.";
@@ -264,10 +268,11 @@ onMounted(loadCalendar);
   </div>
 
   <h1>Calendar View</h1>
-  <div>
-    <button @click="shiftWeek(-1)">◀ Prev</button>
-    <span>{{ weekLabel }}</span>
-    <button @click="shiftWeek(1)">Next ▶</button>
+  <div class="week-nav">
+    <button type="button" class="nav-btn" @click="shiftWeek(-1)">◀ Prev</button>
+    <button type="button" class="nav-btn nav-btn--today" @click="goToCurrentWeek">This week</button>
+    <span class="week-label">{{ weekLabel }}</span>
+    <button type="button" class="nav-btn" @click="shiftWeek(1)">Next ▶</button>
   </div>
 
   <div class="cal-grid">
@@ -303,6 +308,56 @@ onMounted(loadCalendar);
 </template>
 
 <style scoped>
+/* Week navigation */
+.week-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.week-label {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+}
+
+.nav-btn {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.nav-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.nav-btn--today {
+  border-color: #2563eb;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.nav-btn--today:hover {
+  background: #eff6ff;
+}
+
+.nav-btn:focus-visible,
+.fab:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* Floating add-shift button */
 .fab-wrap {
   position: fixed;
   right: 1.5rem;
@@ -315,20 +370,22 @@ onMounted(loadCalendar);
 }
 
 .fab {
+  display: grid;
+  place-items: center;
   width: 56px;
   height: 56px;
   border: none;
   border-radius: 50%;
   background: #2563eb;
   color: #fff;
-  display: grid;
-  place-items: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+  transition: background-color 0.15s, transform 0.15s;
 }
 
 .fab:hover {
   background: #1d4ed8;
+  transform: scale(1.05);
 }
 
 .access-notice {
@@ -338,8 +395,10 @@ onMounted(loadCalendar);
   background: #111827;
   color: #fff;
   font-size: 0.9rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
+/* Add-shift panel */
 .provision-panel {
   position: fixed;
   right: 1.5rem;
@@ -348,25 +407,46 @@ onMounted(loadCalendar);
   width: min(420px, calc(100vw - 3rem));
   max-height: 70vh;
   overflow: auto;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
   background: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
 }
 
 .provision-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .provision-header h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
+  color: #111827;
+}
+
+.provision-header button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #6b7280;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.provision-header button:hover {
+  background: #f3f4f6;
+  color: #111827;
 }
 
 .provision-panel form {
   flex-wrap: wrap;
+  align-items: center;
 }
 </style>
