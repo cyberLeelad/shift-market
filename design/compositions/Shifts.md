@@ -19,7 +19,7 @@ If a staff member wants coverage, they can [offer a shift](reaction:Shifts.Offer
 Shifts.Offer at /shifts/offer
 ```
 
-A staff member [claims a shift](reaction:Shifts.Claim) under their kerberos. If the shift is available, it is now assigned to the claiming staff member instead of the offering shift member. If the shift is not available or does not exist, the claim is refused.
+A staff member [claims a shift](reaction:Shifts.Claim) under their kerberos. If the shift is available, it is now assigned to the claiming staff member instead of the offering shift member (if different). If the shift is not available or does not exist, the claim is refused.
 
 ```endpoints
 Shifts.Claim at /shifts/claim
