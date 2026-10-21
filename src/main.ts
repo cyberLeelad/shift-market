@@ -7,6 +7,7 @@ import { db } from "./db.ts";
 const application = assembleApplication();
 const gateway = createGateway({ application });
 const api = createHttpHandler({ application, gateway, policy });
+const dist = `${import.meta.dir}/../web/dist`;
 
 const server = Bun.serve({
   hostname: process.env.HOST ?? "127.0.0.1",
