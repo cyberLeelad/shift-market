@@ -31,7 +31,14 @@ describe("Shifts.MakeOne", () => {
     const made = ok(await api.shifts.makeOne({ start: "09:00", end: "17:00", date: "2026-10-20" }));
 
     expect(await listedShifts(api)).toEqual([
-        { shift: made.shift, start: "09:00", end: "17:00", date: "2026-10-20", holder: null },
+      {
+        shift: made.shift,
+        start: "09:00",
+        end: "17:00",
+        date: "2026-10-20",
+        holder: null,
+        offer: null,
+      },
     ]);
   });
 
@@ -143,7 +150,7 @@ describe("Shifts.MakeWeekly", () => {
   });
 });
 
-describe("Shifts.List", () => {
+describe("Shifts.List basics", () => {
   test("returns an empty organizer when no shifts exist", async () => {
     const { api } = await start();
 
@@ -162,6 +169,37 @@ describe("Shifts.List", () => {
       ["2026-10-20", "17:00"],
       ["2026-10-21", "13:00"],
     ]);
+  });
+});
+
+describe("Shifts.List reservation and offer state", () => {
+  test("shows unreserved, held, and held-and-offered shifts with the right holder and offer", async () => {
+    const { api } = await start();
+    const open = ok(await api.shifts.makeOne({ start: "09:00", end: "11:00", date: "2026-10-20" })).shift;
+    const held = ok(await api.shifts.makeOne({ start: "11:00", end: "13:00", date: "2026-10-20" })).shift;
+    const offered = ok(await api.shifts.makeOne({ start: "13:00", end: "15:00", date: "2026-10-20" })).shift;
+
+    ok(await api.shifts.claim({ user: "ana", resource: held }));
+    ok(await api.shifts.claim({ user: "ben", resource: offered }));
+    const { offer } = ok(await api.shifts.offer({ resource: offered, user: "ben" }));
+
+    const rows = new Map((await listedShifts(api)).map((row) => [row.shift, row]));
+
+    expect(rows.get(open)).toMatchObject({ holder: null, offer: null });
+    expect(rows.get(held)).toMatchObject({ holder: "ana", offer: null });
+    expect(rows.get(offered)).toMatchObject({ holder: "ben", offer });
+  });
+
+  test("claiming an offered shift clears the offer and moves the holder to the claimer", async () => {
+    const { api } = await start();
+    const shift = ok(await api.shifts.makeOne({ start: "09:00", end: "11:00", date: "2026-10-20" })).shift;
+    ok(await api.shifts.claim({ user: "ana", resource: shift }));
+    ok(await api.shifts.offer({ resource: shift, user: "ana" }));
+
+    ok(await api.shifts.claim({ user: "ben", resource: shift }));
+
+    const row = (await listedShifts(api)).find((r) => r.shift === shift);
+    expect(row).toMatchObject({ holder: "ben", offer: null });
   });
 });
 
