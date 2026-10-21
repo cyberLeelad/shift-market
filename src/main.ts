@@ -26,6 +26,10 @@ const server = Bun.serve({
       }
     },
   },
+  async fetch(request) {
+    const file = Bun.file(dist + new URL(request.url).pathname);
+    return new Response((await file.exists()) ? file : Bun.file(`${dist}/index.html`));
+  },
 });
 
 console.log(`Backend ready on ${server.url}`);
