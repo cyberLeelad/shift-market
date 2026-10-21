@@ -58,6 +58,14 @@ function pad(n: number): string {
   return String(n).padStart(2, "0");
 }
 
+type ShiftCategory = "mine" | "available" | "unavailable";
+
+function shiftCategory(s: ShiftRow): ShiftCategory {
+  if (s.offer || !s.holder) return "available";
+  if (s.holder === me.value) return "mine";
+  return "unavailable";
+}
+
 /** The Monday (UTC midnight) of the week containing the given local date. */
 function mondayOf(date: Date): Date {
   const utcMidnight = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
@@ -117,6 +125,7 @@ const columns = computed(() =>
         label: `${s.start}-${clock(s.end)}${minutes(s.end) > MINUTES_PER_DAY ? " (next day)" : ""}`,
         holder: s.holder,
         offer: s.offer,
+        category: shiftCategory(s),
         style: {
           top: `${(from - CAL_START_MINUTE) * PX_PER_MINUTE}px`,
           height: `${(to - from) * PX_PER_MINUTE}px`,
@@ -284,14 +293,32 @@ onMounted(loadCalendar);
     <div v-for="col in columns" :key="col.iso" class="cal-day">
       <div class="cal-head">{{ col.head }}</div>
       <div class="cal-body">
-        <div v-for="b in col.blocks" :key="b.key" class="cal-shift" :style="b.style">
+        <div
+          v-for="b in col.blocks"
+          :key="b.key"
+          :class="['cal-shift', b.category]"
+          :style="b.style"
+        >
           <div>{{ b.label }}</div>
+          <div v-if="b.category === 'available'" class="needs-coverage">needs coverage!</div>
           <div v-if="b.holder">held by {{ b.holder }}</div>
           <div v-if="b.offer">offered</div>
-          <button v-if="b.holder && b.holder === me && !b.offer" @click="offerShift(b.shift)">
-            Offer
-          </button>
-          <button v-else-if="!b.holder || b.offer" @click="claimShift(b.shift)">Claim</button>
+          <button
+            v-if="b.holder && b.holder === me && !b.offer"
+            type="button"
+            class="icon-btn icon-btn--offer"
+            title="Offer this shift"
+            aria-label="Offer this shift"
+            @click="offerShift(b.shift)"
+          >⇄</button>
+          <button
+            v-else-if="!b.holder || b.offer"
+            type="button"
+            class="icon-btn icon-btn--claim"
+            title="Claim this shift"
+            aria-label="Claim this shift"
+            @click="claimShift(b.shift)"
+          >+</button>
         </div>
       </div>
     </div>
@@ -448,5 +475,75 @@ onMounted(loadCalendar);
 .provision-panel form {
   flex-wrap: wrap;
   align-items: center;
+}
+
+.cal-shift.available {
+  background: #dcfce7;
+  border-color: #16a34a;
+}
+
+.cal-shift.mine {
+  background: #dbeafe;
+  border-color: #2563eb;
+}
+
+.cal-shift.unavailable {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #6b7280;
+}
+
+.cal-shift {
+  position: relative;
+}
+
+.icon-btn {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  font-size: 1.1rem;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  background: #fff;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s, border-color 0.15s, background-color 0.15s;
+}
+
+.icon-btn:hover {
+  transform: scale(1.1);
+  background: #f9fafb;
+}
+
+.icon-btn--claim {
+  color: #2563eb;
+}
+
+.icon-btn--claim:hover {
+  border-color: #2563eb;
+}
+
+.icon-btn--offer {
+  color: #d97706;
+}
+
+.icon-btn--offer:hover {
+  border-color: #d97706;
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid #111827;
+  outline-offset: 2px;
+}
+.needs-coverage {
+  font-weight: 600;
+  font-style: italic;
 }
 </style>
