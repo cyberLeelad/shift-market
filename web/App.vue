@@ -6,22 +6,41 @@ import type { ShiftMarketWireHttp } from "../generated/wire.ts";
 const client = createHttpClient<ShiftMarketWireHttp>({ baseUrl: "/api" });
 
 type WeeklyDay = Parameters<typeof client.shifts.makeWeekly>[0]["day"];
-const DAY_OPTIONS: WeeklyDay[] = [
-  "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
-] as WeeklyDay[];
-enum STATUS { HELD, UNRESERVED, OFFERED };
 
-type ShiftRow = { shift: string; start: string; end: string; date: string; linked: { linked: string }[]; holder: string | null; offer: string | null; status: STATUS };
+const CAPTAIN_KERBEROS = "captain-fred";
+const DAY_OPTIONS = [
+  "MONDAY",
+  "TUESDAY",
+  "WEDNESDAY",
+  "THURSDAY",
+  "FRIDAY",
+  "SATURDAY",
+  "SUNDAY",
+] as const satisfies readonly WeeklyDay[];
+
+type ShiftRow = {
+  shift: string;
+  start: string;
+  end: string;
+  date: string;
+  linked: string[];
+  holder: string | null;
+  offer: string | null;
+};
+
 const DAY_MS = 24 * 60 * 60 * 1000;
+const MINUTES_PER_DAY = 24 * 60;
+const CAL_START_MINUTE = 8 * 60;
 const PX_PER_MINUTE = 1;
-const CAL_START = 8 * 60;
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const hourLabels = Array.from({ length: 16 }, (_, i) => `${String(i + 8).padStart(2, "0")}:00`);
+const HOUR_LABELS = Array.from({ length: 16 }, (_, i) => `${pad(i + 8)}:00`);
 
 // State
 const kerberos = ref("");
 const status = ref("");
 const isWeekly = ref(true);
+const assignStaff = ref(false);
+const staffKerberos = ref("");
 const form = ref({
   date: "",
   last: "",
@@ -31,35 +50,43 @@ const form = ref({
 });
 const shiftRows = ref<ShiftRow[]>([]);
 const weekStart = ref(mondayOf(new Date()));
-const assignStaff = ref(false);
-const staffKerberos = ref("");
+const showProvision = ref(false);
+const accessNotice = ref("");
 
 // Helpers
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+/** The Monday (UTC midnight) of the week containing the given local date. */
 function mondayOf(date: Date): Date {
-  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-  const offset = (d.getUTCDay() + 6) % 7;
-  return new Date(d.getTime() - offset * DAY_MS);
+  const utcMidnight = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const daysSinceMonday = (new Date(utcMidnight).getUTCDay() + 6) % 7;
+  return new Date(utcMidnight - daysSinceMonday * DAY_MS);
 }
 
 function toISO(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** "HH:MM" to minutes since midnight. Times past midnight (e.g. "26:00") stay above 1440. */
 function minutes(hhmm: string): number {
   return Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
 }
 
+/** Minutes to a wrapped "HH:MM" clock time. */
 function clock(hhmm: string): string {
-  const m = minutes(hhmm) % 1440;
-  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+  const m = minutes(hhmm) % MINUTES_PER_DAY;
+  return `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
 }
 
+/** Assigns each shift to a side-by-side lane so overlapping shifts do not hide each other. */
 function layoutDay(list: ShiftRow[]) {
   const sorted = [...list].sort((a, b) => minutes(a.start) - minutes(b.start));
   const laneEnds: number[] = [];
   const placed = sorted.map((s) => {
     const from = minutes(s.start);
-    const to = Math.min(minutes(s.end), 1440);
+    const to = Math.min(minutes(s.end), MINUTES_PER_DAY);
     let lane = laneEnds.findIndex((end) => end <= from);
     if (lane === -1) lane = laneEnds.push(0) - 1;
     laneEnds[lane] = to;
@@ -69,7 +96,8 @@ function layoutDay(list: ShiftRow[]) {
 }
 
 // Derived state
-const isCaptain = computed(() => kerberos.value.trim() === "captain-fred");
+const me = computed(() => kerberos.value.trim());
+const isCaptain = computed(() => me.value === CAPTAIN_KERBEROS);
 
 const days = computed(() =>
   Array.from({ length: 7 }, (_, i) => new Date(weekStart.value.getTime() + i * DAY_MS)),
@@ -86,12 +114,11 @@ const columns = computed(() =>
       blocks: placed.map(({ s, from, to, lane }) => ({
         key: s.shift,
         shift: s.shift,
-        label: `${s.start}-${clock(s.end)}${minutes(s.end) > 1440 ? " (next day)" : ""}`,
+        label: `${s.start}-${clock(s.end)}${minutes(s.end) > MINUTES_PER_DAY ? " (next day)" : ""}`,
         holder: s.holder,
         offer: s.offer,
-        status: s.status,
         style: {
-          top: `${(from - CAL_START) * PX_PER_MINUTE}px`,
+          top: `${(from - CAL_START_MINUTE) * PX_PER_MINUTE}px`,
           height: `${(to - from) * PX_PER_MINUTE}px`,
           left: `${(lane * 100) / lanes}%`,
           width: `${100 / lanes}%`,
@@ -102,6 +129,13 @@ const columns = computed(() =>
 );
 
 // Actions
+/** Sets a status message and returns true when the user has not entered a kerberos. */
+function needsKerberos(): boolean {
+  if (me.value) return false;
+  status.value = "Enter your kerberos first.";
+  return true;
+}
+
 async function loadCalendar() {
   const result = await client.shifts.list({});
   if ("error" in result) {
@@ -113,20 +147,17 @@ async function loadCalendar() {
     start: s.start,
     end: s.end,
     date: s.date,
-    linked: s.linked,
+    linked: s.linked.map((l) => l.linked),
     holder: s.state.holder,
     offer: s.state.offer,
-    status: s.state.offer ? STATUS.OFFERED : s.state.holder ? STATUS.HELD : STATUS.UNRESERVED,
   }));
 }
 
 async function submitProvision() {
   const { date, last, day, start, end } = form.value;
-  const user = kerberos.value.trim();
-  const assign = assignStaff.value;
   const staff = staffKerberos.value.trim();
 
-  if (assign && !staff) {
+  if (assignStaff.value && !staff) {
     status.value = "Enter the staff member's kerberos.";
     return;
   }
@@ -140,16 +171,14 @@ async function submitProvision() {
     return;
   }
 
-  // Refresh before looking up the new shift, so its row and linked list are present.
+  // Refresh first so the new shift's row and its linked shifts are present.
   await loadCalendar();
 
   const row = shiftRows.value.find((s) => s.shift === result.shift);
-  const created = row
-    ? [row.shift, ...(row.linked ?? []).map((l) => l.linked)]
-    : [result.shift];
+  const created = row ? [row.shift, ...row.linked] : [result.shift];
   status.value = `Created ${created.length} shift(s)!`;
 
-  if (assign) {
+  if (assignStaff.value) {
     for (const shift of created) {
       const claim = await client.shifts.claim({ user: staff, resource: shift });
       if ("error" in claim) {
@@ -162,23 +191,15 @@ async function submitProvision() {
 }
 
 async function claimShift(shift: string) {
-  const user = kerberos.value.trim();
-  if (!user) {
-    status.value = "Enter your kerberos first.";
-    return;
-  }
-  const result = await client.shifts.claim({ user, resource: shift });
+  if (needsKerberos()) return;
+  const result = await client.shifts.claim({ user: me.value, resource: shift });
   status.value = "error" in result ? `Could not claim: ${result.error}` : "Claimed!";
   await loadCalendar();
 }
 
 async function offerShift(shift: string) {
-  const user = kerberos.value.trim();
-  if (!user) {
-    status.value = "Enter your kerberos first.";
-    return;
-  }
-  const result = await client.shifts.offer({ resource: shift, user });
+  if (needsKerberos()) return;
+  const result = await client.shifts.offer({ resource: shift, user: me.value });
   if ("error" in result) {
     status.value = `Could not offer shift: ${result.error}`;
     return;
@@ -190,19 +211,30 @@ function shiftWeek(weeks: number) {
   weekStart.value = new Date(weekStart.value.getTime() + weeks * 7 * DAY_MS);
 }
 
+function openProvision() {
+  if (!isCaptain.value) {
+    accessNotice.value = "Only captain can open this.";
+    return;
+  }
+  accessNotice.value = "";
+  showProvision.value = true;
+}
+
 onMounted(loadCalendar);
 </script>
 
 <template>
   <p>
     <input v-model="kerberos" placeholder="Your kerberos" />
-    You are currently <b>not</b> authenticated (because Authenticating is not currently supported).
   </p>
 
   <p>{{ status }}</p>
 
-  <template v-if="isCaptain">
-    <h1>Add Shift(s)</h1>
+  <div v-if="showProvision && isCaptain" class="provision-panel" role="dialog" aria-label="Add shifts">
+    <div class="provision-header">
+      <h1>Add Shift(s)</h1>
+      <button type="button" aria-label="Close" @click="showProvision = false">✕</button>
+    </div>
     <form @submit.prevent="submitProvision">
       <input v-model="form.date" type="date" required />
       <template v-if="isWeekly">
@@ -229,7 +261,7 @@ onMounted(loadCalendar);
       </template>
       <button>Create shift!</button>
     </form>
-  </template>
+  </div>
 
   <h1>Calendar View</h1>
   <div>
@@ -241,29 +273,100 @@ onMounted(loadCalendar);
   <div class="cal-grid">
     <div class="cal-hours">
       <div class="cal-head"></div>
-      <div v-for="h in hourLabels" :key="h" class="cal-hour">{{ h }}</div>
+      <div v-for="h in HOUR_LABELS" :key="h" class="cal-hour">{{ h }}</div>
     </div>
 
     <div v-for="col in columns" :key="col.iso" class="cal-day">
       <div class="cal-head">{{ col.head }}</div>
       <div class="cal-body">
-
-        <!-- One calendar block -->
         <div v-for="b in col.blocks" :key="b.key" class="cal-shift" :style="b.style">
           <div>{{ b.label }}</div>
           <div v-if="b.holder">held by {{ b.holder }}</div>
           <div v-if="b.offer">offered</div>
-          <button
-            v-if="b.holder && b.holder === kerberos.trim() && !b.offer"
-            @click="offerShift(b.shift)"
-          >Offer</button>
-          <button
-            v-else-if="!b.holder || b.offer"
-            @click="claimShift(b.shift)"
-          >Claim</button>
+          <button v-if="b.holder && b.holder === me && !b.offer" @click="offerShift(b.shift)">
+            Offer
+          </button>
+          <button v-else-if="!b.holder || b.offer" @click="claimShift(b.shift)">Claim</button>
         </div>
-
       </div>
     </div>
   </div>
+
+  <div class="fab-wrap">
+    <p v-if="accessNotice" class="access-notice" role="status">{{ accessNotice }}</p>
+    <button type="button" class="fab" aria-label="Add shifts" title="Add shifts" @click="openProvision">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+        <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" />
+      </svg>
+    </button>
+  </div>
 </template>
+
+<style scoped>
+.fab-wrap {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.fab {
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background: #2563eb;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.fab:hover {
+  background: #1d4ed8;
+}
+
+.access-notice {
+  margin: 0;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  background: #111827;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.provision-panel {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 6rem;
+  z-index: 999;
+  width: min(420px, calc(100vw - 3rem));
+  max-height: 70vh;
+  overflow: auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.provision-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.provision-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.provision-panel form {
+  flex-wrap: wrap;
+}
+</style>
