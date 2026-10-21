@@ -33,6 +33,7 @@ export type ShiftMarketWire = {
           "date": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["date"]>>;
           "end": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["end"]>>;
           "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
+          "offer": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>>>, ["offer"]>> | null;
           "shift": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["shift"]>>;
           "start": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["start"]>>;
         })[];
@@ -99,6 +100,7 @@ export type ShiftMarketWireHttp = {
           "date": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["date"]>>;
           "end": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["end"]>>;
           "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
+          "offer": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>>>, ["offer"]>> | null;
           "shift": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["shift"]>>;
           "start": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["start"]>>;
         })[];

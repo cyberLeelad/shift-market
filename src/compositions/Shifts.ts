@@ -4,19 +4,25 @@ import { concepts } from "../concepts.ts";
 
 const { Provisioning, Reserving, Offering } = concepts;
 
-// getters
+// formers
 
 const holderOf = former("the holder of (shift)", ({ shift }, { holder }) =>
   where(Reserving._holderOf({ resource: shift }).is({ holder })).form({ holder }),
+).optional();
+
+const offerOf = former("the open offer of (shift)", ({ shift }, { offer }) =>
+  where(Offering._getOffer({ item: shift }).is({ offer })).form({ offer }),
 ).optional();
 
 const ShiftOrganizer = former("the shift organizer", (_input, { shift, start, end, date }) =>
   form({
     shifts: each(Provisioning._all({}).is({ shift, start, end, date }))
       .form({ shift, start, end, date })
-      .splicing(whether(holderOf({ shift }))),
+      .splicing(whether(holderOf({ shift })), whether(offerOf({ shift }))),
   }),
 );
+
+// List
 
 const List = endpoint("/shifts/list", () =>
   receive({}).then(respond({ organizer: ShiftOrganizer({}) })),

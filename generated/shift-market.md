@@ -104,6 +104,15 @@ Former "the holder of (shift)" — inputs (shift); bindings (holder); promises a
     holder
 ```
 
+### the open offer of (shift)
+
+```former
+Former "the open offer of (shift)" — inputs (shift); bindings (offer); promises at most one record — forms:
+  a record of
+    where Offering._getOffer (item: shift) has (offer)
+    offer
+```
+
 ### the shift organizer
 
 Authored path: `Shifts.ShiftOrganizer`.
@@ -119,6 +128,7 @@ Former "the shift organizer" — inputs (); bindings (shift, start, end, date); 
         shift
         start
         … former "the holder of (shift)" with (shift), with blank leaves if absent
+        … former "the open offer of (shift)" with (shift), with blank leaves if absent
 ```
 
 ## Reactions
