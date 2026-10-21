@@ -237,6 +237,9 @@ onMounted(loadCalendar);
 </script>
 
 <template>
+
+  <h1 class="app-title">FRED Desk Shift Market :]</h1>
+
   <p>
     <input v-model="kerberos" placeholder="Your kerberos" />
   </p>
@@ -276,7 +279,7 @@ onMounted(loadCalendar);
     </form>
   </div>
 
-  <h1>Calendar View</h1>
+  <h2>Calendar View</h2>
   <div class="week-nav">
     <button type="button" class="nav-btn" @click="shiftWeek(-1)">◀ Prev</button>
     <button type="button" class="nav-btn nav-btn--today" @click="goToCurrentWeek">This week</button>
@@ -494,7 +497,9 @@ onMounted(loadCalendar);
 }
 
 .cal-shift {
-  position: relative;
+  position: absolute;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .icon-btn {
@@ -545,5 +550,12 @@ onMounted(loadCalendar);
 .needs-coverage {
   font-weight: 600;
   font-style: italic;
+}
+
+.app-title {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
 }
 </style>
