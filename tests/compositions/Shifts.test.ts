@@ -170,53 +170,118 @@ async function makeShift(api: Market["api"]): Promise<string> {
   return ok(await api.shifts.makeOne({ start: "09:00", end: "17:00", date: "2026-11-02" })).shift;
 }
 
+/** A shift `user` holds, obtained by claiming it. */
+async function shiftHeldBy(api: Market["api"], user: string): Promise<string> {
+  const shift = await makeShift(api);
+  ok(await api.shifts.claim({ user, resource: shift }));
+  return shift;
+}
+
 describe("Shifts.Claim", () => {
   let api: Market["api"];
 
   beforeEach(async () => {
     ({ api } = await start());
   });
-  
-  test("a staff member claims an open shift", async () => {
-    const { api } = await start();
+
+  test("a staff member claims an open shift and then holds it", async () => {
     const shift = await makeShift(api);
 
     ok(await api.shifts.claim({ user: "rowan", resource: shift }));
+
+    // Holding is observable through offering: only the holder can offer.
+    expect("error" in (await api.shifts.offer({ resource: shift, user: "rowan" }))).toBe(false);
   });
 
   test("an unknown shift is refused", async () => {
-    const { api } = await start();
-
     const result = await api.shifts.claim({ user: "rowan", resource: crypto.randomUUID() });
 
-    expect(result).toHaveProperty("error");
+    expect(result).toEqual({ error: "UNKNOWN_SHIFT" });
   });
 
-  test("a held shift is refused to other staff and to its holder", async () => {
-    const { api } = await start();
-    const shift = await makeShift(api);
-    ok(await api.shifts.claim({ user: "rowan", resource: shift }));
+  test("a held shift that is not offered is refused to other staff and to its holder", async () => {
+    const shift = await shiftHeldBy(api, "rowan");
 
-    expect(await api.shifts.claim({ user: "sam", resource: shift })).toHaveProperty("error");
-    expect(await api.shifts.claim({ user: "rowan", resource: shift })).toHaveProperty("error");
+    expect(await api.shifts.claim({ user: "sam", resource: shift })).toEqual({ error: "TAKEN" });
+    expect(await api.shifts.claim({ user: "rowan", resource: shift })).toEqual({ error: "TAKEN" });
   });
 
-  test("simultaneous claims on one shift leave exactly one holder", async () => {
-    const { api } = await start();
+  test("a refused claim leaves the holder unchanged", async () => {
+    const shift = await shiftHeldBy(api, "rowan");
+
+    await api.shifts.claim({ user: "sam", resource: shift });
+
+    expect("error" in (await api.shifts.offer({ resource: shift, user: "rowan" }))).toBe(false);
+  });
+
+  test("simultaneous claims on an open shift leave exactly one holder", async () => {
     const shift = await makeShift(api);
     const users = ["ada", "ben", "cy", "dee", "eli"];
 
-    const results = await Promise.all(
-      users.map((user) => api.shifts.claim({ user, resource: shift })),
-    );
+    const results = await Promise.all(users.map((user) => api.shifts.claim({ user, resource: shift })));
 
-    expect(results.filter((r) => !("error" in r))).toHaveLength(1);
+    const winners = results.flatMap((result, i) => ("error" in result ? [] : [users[i]!]));
+    expect(winners).toHaveLength(1);
     expect(results.filter((r) => "error" in r)).toHaveLength(users.length - 1);
+
+    // The single winner is the one holder: they can offer, and no one else can.
+    const [winner] = winners;
+    expect("error" in (await api.shifts.offer({ resource: shift, user: winner! }))).toBe(false);
+  });
+
+  describe("claiming an offered shift", () => {
+    test("another staff member claims an offered shift, which then belongs to them", async () => {
+      const shift = await shiftHeldBy(api, "ana");
+      ok(await api.shifts.offer({ resource: shift, user: "ana" }));
+
+      ok(await api.shifts.claim({ user: "ben", resource: shift }));
+
+      // Ben holds it now, so Ben can offer it again ...
+      expect("error" in (await api.shifts.offer({ resource: shift, user: "ben" }))).toBe(false);
+    });
+
+    test("claiming closes the offer, and the former holder no longer holds the shift", async () => {
+      const shift = await shiftHeldBy(api, "ana");
+      ok(await api.shifts.offer({ resource: shift, user: "ana" }));
+
+      ok(await api.shifts.claim({ user: "ben", resource: shift }));
+
+      // ... which is only possible if the earlier offer is no longer open ...
+      // ... and Ana, the former holder, can no longer offer it.
+      expect(await api.shifts.offer({ resource: shift, user: "ana" })).toEqual({ error: "NOT_HELD" });
+    });
+
+    test("the offering staff member cannot claim their own offer", async () => {
+      const shift = await shiftHeldBy(api, "ana");
+      ok(await api.shifts.offer({ resource: shift, user: "ana" }));
+
+      expect(await api.shifts.claim({ user: "ana", resource: shift })).toHaveProperty("error");
+    });
+
+    test("a second claim on an already claimed offer is refused, and the first claimer keeps the shift", async () => {
+      const shift = await shiftHeldBy(api, "ana");
+      ok(await api.shifts.offer({ resource: shift, user: "ana" }));
+      ok(await api.shifts.claim({ user: "ben", resource: shift }));
+
+      expect(await api.shifts.claim({ user: "cy", resource: shift })).toHaveProperty("error");
+      expect("error" in (await api.shifts.offer({ resource: shift, user: "ben" }))).toBe(false);
+    });
+
+    test("simultaneous claims on one offered shift leave exactly one new holder", async () => {
+      const shift = await shiftHeldBy(api, "ana");
+      ok(await api.shifts.offer({ resource: shift, user: "ana" }));
+      const users = ["ben", "cy", "dee", "eli"];
+
+      const results = await Promise.all(users.map((user) => api.shifts.claim({ user, resource: shift })));
+
+      const winners = results.flatMap((result, i) => ("error" in result ? [] : [users[i]!]));
+      expect(winners).toHaveLength(1);
+      expect(results.filter((r) => "error" in r)).toHaveLength(users.length - 1);
+      expect("error" in (await api.shifts.offer({ resource: shift, user: winners[0]! }))).toBe(false);
+    });
   });
 
   test("a claim without a user or resource is rejected", async () => {
-    const { api } = await start();
-
     // @ts-expect-error: deliberately omitting required fields
     const result = await api.shifts.claim({ user: "rowan" });
 
