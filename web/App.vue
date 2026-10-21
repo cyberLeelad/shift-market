@@ -9,9 +9,9 @@ type WeeklyDay = Parameters<typeof client.shifts.makeWeekly>[0]["day"];
 const DAY_OPTIONS: WeeklyDay[] = [
   "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
 ] as WeeklyDay[];
-enum STATUS { HELD, UNRESERVED };
+enum STATUS { HELD, UNRESERVED, OFFERED };
 
-type ShiftRow = { shift: string; start: string; end: string; date: string, holder: string | null, status: STATUS };
+type ShiftRow = { shift: string; start: string; end: string; date: string, holder: string | null, offer: string | null, status: STATUS };
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PX_PER_MINUTE = 1;
@@ -68,6 +68,8 @@ function layoutDay(list: ShiftRow[]) {
 }
 
 // Derived state
+const isCaptain = computed(() => kerberos.value.trim() === "captain-fred");
+
 const days = computed(() =>
   Array.from({ length: 7 }, (_, i) => new Date(weekStart.value.getTime() + i * DAY_MS)),
 );
@@ -84,6 +86,7 @@ const columns = computed(() =>
         key: s.shift,
         shift: s.shift,
         holder: s.holder,
+        offer: s.offer,
         label: `${s.start}-${clock(s.end)}${minutes(s.end) > 1440 ? " (next day)" : ""}`,
         style: {
           top: `${(from - CAL_START) * PX_PER_MINUTE}px`,
@@ -105,7 +108,7 @@ async function loadCalendar() {
   }
   shiftRows.value = result.organizer.shifts.map((s) => ({
     ...s,
-    status: s.holder ? STATUS.HELD : STATUS.UNRESERVED,
+    status: s.offer ? STATUS.OFFERED : s.holder ? STATUS.HELD : STATUS.UNRESERVED
   }));
 }
 
@@ -129,6 +132,20 @@ async function claimShift(shift: string) {
   await loadCalendar();
 }
 
+async function offerShift(shift: string) {
+  const user = kerberos.value.trim();
+  if (!user) {
+    status.value = "Enter your kerberos first.";
+    return;
+  }
+  const result = await client.shifts.offer({ resource: shift, user });
+  if ("error" in result) {
+    status.value = `Could not offer shift: ${result.error}`;
+    return;
+  }
+  await loadCalendar();
+}
+
 function shiftWeek(weeks: number) {
   weekStart.value = new Date(weekStart.value.getTime() + weeks * 7 * DAY_MS);
 }
@@ -144,26 +161,28 @@ onMounted(loadCalendar);
 
   <p>{{ status }}</p>
 
-  <h1>Add Shift(s)</h1>
-  <form @submit.prevent="submitProvision">
-    <input v-model="form.date" type="date" required />
-    <template v-if="isWeekly">
-      <label>Last date <input v-model="form.last" type="date" required /></label>
+  <template v-if="isCaptain">
+    <h1>Add Shift(s)</h1>
+    <form @submit.prevent="submitProvision">
+      <input v-model="form.date" type="date" required />
+      <template v-if="isWeekly">
+        <label>Last date <input v-model="form.last" type="date" required /></label>
+        <label>
+          Day
+          <select v-model="form.day">
+            <option v-for="d in DAY_OPTIONS" :key="d" :value="d">{{ d }}</option>
+          </select>
+        </label>
+      </template>
+      <input v-model="form.start" type="time" required />
+      <input v-model="form.end" type="time" required />
       <label>
-        Day
-        <select v-model="form.day">
-          <option v-for="d in DAY_OPTIONS" :key="d" :value="d">{{ d }}</option>
-        </select>
+        <input v-model="isWeekly" type="checkbox" />
+        Weekly shift
       </label>
-    </template>
-    <input v-model="form.start" type="time" required />
-    <input v-model="form.end" type="time" required />
-    <label>
-      <input v-model="isWeekly" type="checkbox" />
-      Weekly shift
-    </label>
-    <button>Create shift!</button>
-  </form>
+      <button>Create shift!</button>
+    </form>
+  </template>
 
   <h1>Calendar View</h1>
   <div>
@@ -181,11 +200,22 @@ onMounted(loadCalendar);
     <div v-for="col in columns" :key="col.iso" class="cal-day">
       <div class="cal-head">{{ col.head }}</div>
       <div class="cal-body">
+
+        <!-- One calendar block -->
         <div v-for="b in col.blocks" :key="b.key" class="cal-shift" :style="b.style">
           <div>{{ b.label }}</div>
           <div v-if="b.holder">held by {{ b.holder }}</div>
-          <button v-else @click="claimShift(b.shift)">Claim</button>
+          <div v-if="b.offer">offered</div>
+          <button
+            v-if="b.holder && b.holder === kerberos.trim() && !b.offer"
+            @click="offerShift(b.shift)"
+          >Offer</button>
+          <button
+            v-else-if="!b.holder || b.offer"
+            @click="claimShift(b.shift)"
+          >Claim</button>
         </div>
+
       </div>
     </div>
   </div>
