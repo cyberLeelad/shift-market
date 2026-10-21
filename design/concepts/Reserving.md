@@ -46,6 +46,15 @@ cancel(reservation: Reservation) : returns (reservation: Reservation)
   where reservation is not in Reservations
   then
     refuses NO_SUCH_RESERVATION "There is no such reservation."
+
+transfer(user: User, resource: Resource) : returns (reservation: Reservation)
+  where resource is reserved
+  then
+    set the holder of the reservation for resource to user
+    returns reservation
+  where resource is not reserved
+  then
+    refuses NO_SUCH_RESERVATION "There is no such reservation."
 ```
 
 ## Queries
