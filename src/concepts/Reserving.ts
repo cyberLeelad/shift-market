@@ -43,6 +43,20 @@ export class ReservingConcept {
     return { reservation };
   }
 
+  // src/concepts/Reserving.ts (add to ReservingConcept)
+  async transfer({ resource, user }: { resource: string; user: string }) {
+    // One document update, so the holder changes in a single step.
+    const found = await this.reservations.findOneAndUpdate(
+      { resource },
+      { $set: { user } },
+      { projection: { _id: 1 } },
+    );
+    if (found === null) {
+      throw new NoSuchReservation("There is no such reservation.");
+    }
+    return { reservation: found._id };
+  }
+
   async _all(_input: Record<string, never>) {
     const rows = await this.reservations.find().sort({ resource: 1 }).toArray();
     return rows.map(({ _id, user, resource }) => ({ reservation: _id, user, resource }));
