@@ -32,10 +32,15 @@ export type ShiftMarketWire = {
         "shifts": ({
           "date": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["date"]>>;
           "end": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["end"]>>;
-          "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
-          "offer": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>>>, ["offer"]>> | null;
+          "linked": {
+            "linked": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_linked"]>>>, ["linked"]>>;
+          }[];
           "shift": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["shift"]>>;
           "start": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["start"]>>;
+          "state": {
+            "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
+            "offer": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>>>, ["offer"]>> | null;
+          };
         })[];
       };
     };
@@ -99,10 +104,15 @@ export type ShiftMarketWireHttp = {
         "shifts": ({
           "date": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["date"]>>;
           "end": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["end"]>>;
-          "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
-          "offer": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>>>, ["offer"]>> | null;
+          "linked": {
+            "linked": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_linked"]>>>, ["linked"]>>;
+          }[];
           "shift": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["shift"]>>;
           "start": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_all"]>>>, ["start"]>>;
+          "state": {
+            "holder": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["_holderOf"]>>>, ["holder"]>> | null;
+            "offer": Jsonify<AtPath<QueryRow<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>>>, ["offer"]>> | null;
+          };
         })[];
       };
     };

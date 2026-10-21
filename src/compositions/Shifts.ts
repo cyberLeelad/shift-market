@@ -14,11 +14,27 @@ const offerOf = former("the open offer of (shift)", ({ shift }, { offer }) =>
   where(Offering._getOffer({ item: shift }).is({ offer })).form({ offer }),
 ).optional();
 
+const ShiftLinks = former("the links of (shift)", ({ shift }, { linked }) =>
+  each(Provisioning._linked({ shift }).is({ linked })).form({ linked }),
+);
+
+const ShiftState = former("the state of (shift)", ({ shift }, { holder, offer }) =>
+  where(
+    whether(Reserving._holderOf({ resource: shift }).is({ holder })),
+    whether(Offering._getOffer({ item: shift }).is({ offer })),
+  ).form({ holder, offer }),
+);
+
 const ShiftOrganizer = former("the shift organizer", (_input, { shift, start, end, date }) =>
   form({
-    shifts: each(Provisioning._all({}).is({ shift, start, end, date }))
-      .form({ shift, start, end, date })
-      .splicing(whether(holderOf({ shift })), whether(offerOf({ shift }))),
+    shifts: each(Provisioning._all({}).is({ shift, start, end, date })).form({
+      shift,
+      start,
+      end,
+      date,
+      state: ShiftState({ shift }),
+      linked: ShiftLinks({ shift }),
+    }),
   }),
 );
 
@@ -27,6 +43,7 @@ const ShiftOrganizer = former("the shift organizer", (_input, { shift, start, en
 const List = endpoint("/shifts/list", () =>
   receive({}).then(respond({ organizer: ShiftOrganizer({}) })),
 );
+
 
 // Make shifts
 

@@ -49,6 +49,7 @@ Defined in [Provisioning](../design/concepts/Provisioning.md), line 1.
 
 - `_all() : many (shift: Shift, start: Time, end: Time, date: Date)`
 - `_exists(shift: Shift) : one (exists: Flag)`
+- `_linked(shift: Shift) : many (linked: Shift)`
 
 #### Instances
 
@@ -104,12 +105,23 @@ Former "the holder of (shift)" — inputs (shift); bindings (holder); promises a
     holder
 ```
 
-### the open offer of (shift)
+### the links of (shift)
 
 ```former
-Former "the open offer of (shift)" — inputs (shift); bindings (offer); promises at most one record — forms:
+Former "the links of (shift)" — inputs (shift); bindings (linked); promises exactly one record — forms:
+  each Provisioning._linked (shift) has (linked)
+    form a record of
+      linked
+```
+
+### the state of (shift)
+
+```former
+Former "the state of (shift)" — inputs (shift); bindings (holder, offer); promises exactly one record — forms:
   a record of
-    where Offering._getOffer (item: shift) has (offer)
+    where whether Reserving._holderOf (resource: shift) has (holder)
+    where whether Offering._getOffer (item: shift) has (offer)
+    holder
     offer
 ```
 
@@ -125,10 +137,10 @@ Former "the shift organizer" — inputs (); bindings (shift, start, end, date); 
       form a record of
         date
         end
+        linked: former "the links of (shift)" with (shift)
         shift
         start
-        … former "the holder of (shift)" with (shift), with blank leaves if absent
-        … former "the open offer of (shift)" with (shift), with blank leaves if absent
+        state: former "the state of (shift)" with (shift)
 ```
 
 ## Reactions

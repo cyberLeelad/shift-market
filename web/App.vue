@@ -11,8 +11,7 @@ const DAY_OPTIONS: WeeklyDay[] = [
 ] as WeeklyDay[];
 enum STATUS { HELD, UNRESERVED, OFFERED };
 
-type ShiftRow = { shift: string; start: string; end: string; date: string, holder: string | null, offer: string | null, status: STATUS };
-
+type ShiftRow = { shift: string; start: string; end: string; date: string; linked: { linked: string }[]; holder: string | null; offer: string | null; status: STATUS };
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PX_PER_MINUTE = 1;
 const CAL_START = 8 * 60;
@@ -32,6 +31,8 @@ const form = ref({
 });
 const shiftRows = ref<ShiftRow[]>([]);
 const weekStart = ref(mondayOf(new Date()));
+const assignStaff = ref(false);
+const staffKerberos = ref("");
 
 // Helpers
 function mondayOf(date: Date): Date {
@@ -85,9 +86,10 @@ const columns = computed(() =>
       blocks: placed.map(({ s, from, to, lane }) => ({
         key: s.shift,
         shift: s.shift,
+        label: `${s.start}-${clock(s.end)}${minutes(s.end) > 1440 ? " (next day)" : ""}`,
         holder: s.holder,
         offer: s.offer,
-        label: `${s.start}-${clock(s.end)}${minutes(s.end) > 1440 ? " (next day)" : ""}`,
+        status: s.status,
         style: {
           top: `${(from - CAL_START) * PX_PER_MINUTE}px`,
           height: `${(to - from) * PX_PER_MINUTE}px`,
@@ -107,18 +109,56 @@ async function loadCalendar() {
     return;
   }
   shiftRows.value = result.organizer.shifts.map((s) => ({
-    ...s,
-    status: s.offer ? STATUS.OFFERED : s.holder ? STATUS.HELD : STATUS.UNRESERVED
+    shift: s.shift,
+    start: s.start,
+    end: s.end,
+    date: s.date,
+    linked: s.linked,
+    holder: s.state.holder,
+    offer: s.state.offer,
+    status: s.state.offer ? STATUS.OFFERED : s.state.holder ? STATUS.HELD : STATUS.UNRESERVED,
   }));
 }
 
 async function submitProvision() {
   const { date, last, day, start, end } = form.value;
+  const user = kerberos.value.trim();
+  const assign = assignStaff.value;
+  const staff = staffKerberos.value.trim();
+
+  if (assign && !staff) {
+    status.value = "Enter the staff member's kerberos.";
+    return;
+  }
+
   const result = isWeekly.value
     ? await client.shifts.makeWeekly({ start, end, day, first: date, last })
     : await client.shifts.makeOne({ start, end, date });
-  status.value = "error" in result ? `Could not create shift: ${result.error}` : "Created shift!";
+
+  if ("error" in result) {
+    status.value = `Could not create shift: ${result.error}`;
+    return;
+  }
+
+  // Refresh before looking up the new shift, so its row and linked list are present.
   await loadCalendar();
+
+  const row = shiftRows.value.find((s) => s.shift === result.shift);
+  const created = row
+    ? [row.shift, ...(row.linked ?? []).map((l) => l.linked)]
+    : [result.shift];
+  status.value = `Created ${created.length} shift(s)!`;
+
+  if (assign) {
+    for (const shift of created) {
+      const claim = await client.shifts.claim({ user: staff, resource: shift });
+      if ("error" in claim) {
+        status.value = `Created ${created.length} shift(s), but could not assign them to ${staff}: ${claim.error}`;
+        break;
+      }
+    }
+    await loadCalendar();
+  }
 }
 
 async function claimShift(shift: string) {
@@ -180,6 +220,13 @@ onMounted(loadCalendar);
         <input v-model="isWeekly" type="checkbox" />
         Weekly shift
       </label>
+      <label>
+        <input v-model="assignStaff" type="checkbox" />
+        Assign to staff member?
+      </label>
+      <template v-if="assignStaff">
+        <input v-model="staffKerberos" placeholder="Staff kerberos" required />
+      </template>
       <button>Create shift!</button>
     </form>
   </template>
