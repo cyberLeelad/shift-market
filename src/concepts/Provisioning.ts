@@ -116,4 +116,9 @@ export class ProvisioningConcept {
     const found = await this.shifts.findOne({ _id: shift }, { projection: { _id: 1 } });
     return { exists: found !== null };
   }
+
+  async _linked({ shift }: { shift: string }) {
+    const found = await this.shifts.findOne({ _id: shift }, { projection: { linked: 1 } });
+    return found ? found.linked.map((linked) => ({ linked })) : [];
+  }
 }
