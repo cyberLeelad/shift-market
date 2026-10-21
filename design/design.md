@@ -12,7 +12,9 @@ Updating the calendar manually to match the swapped shifts is tedious, especiall
 
 Relatedly, when many shifts need coverage, the threads can get cluttered. This can make it unwieldly for staff to sift through and determine which shifts they can and want to cover, which is both unpleasant and a deterrant from them picking up shifts at all.
 
-TODO: Feedback from E1: Pull those viv moments (showing up the wrong shift etc.) into the bad situations section. (What viv moments? Those in Corroboration?)
+Staff cannot reliably tell who will be working a certain shift, and sometimes ping the wrong person.
+
+People forget and miss shifts. This is a different problem, but solving the calendar could make it a little easier for staff to find their shifts without remembering them.
 
 ## Stakeholders
 
@@ -30,9 +32,7 @@ I have shown up to a shift that I thought I was working, only to find that it wa
 
 This past summer, I worked mail desk and the calendar was rarely updated. Instead I would assume the next shift was whoever was typically scheduled for that shift, or I would try to look through the threads to find if it was swapped. Sometimes, my guess would be wrong and that person would either respond "not my shift" or not respond at all, even though the relevant person was in fact planning to work, I just could not tell who it was.
 
-I have witnessed my coworkers also be unable to tell who will be working, or ping the wrong person.
-
-This semester, there have been instances of people forgetting and missing shifts. This is a different problem, but this could make it a little easier to find your shifts without remembering them.
+Between October 1st and 20th (inclusive) of 2026, 39 threads were made for swapping shifts. At least three shifts have gone unstaffed, causing desk to be unexpectedly closed and inconvenience residents.
 
 ## Workarounds and comparables
 
@@ -54,15 +54,15 @@ A webapp interface displaying the current schedule. The calendar is first popula
 
 # Application pitch
 
-**Shift Market** simplifies your team's shift economy. No longer will your staff need to sift through a wall of text conversation to determine what shifts need coverage and whether they've been covered yet. **Shift Market** offers:
+**Shift Market** makes shift coverage easier for your team. Instead of digging through long chat threads to figure out which shifts need covering and whether they've been filled, everything is in one place. It offers:
 
-1. **Shift swaps**: When staff members wish to give up a particular shift, they can simply click on their shift and confirm they would like coverage. Likewise, staff members can click to claim available shifts. This makes the process smooth and easy.
+1. **Shift swaps**: Staff can click a shift they want to give up and confirm they need coverage. Others can click to take open shifts.
 
-2. **Shift assignments**: Of course, staff must first have shifts in order to give them up! The desk captain has additional priviledges to create recurring or standalone shifts, which can either be assigned to staff* or listed as available.
+2. **Shift assignments**: Staff need shifts before they can give them up. The desk captain can create recurring or one-time shifts and either assign them to staff* or list them as open.
 
-3. **Live notifications and reminders**: This app would not be competitive if it did not notify staff as soon as shifts become available, especially when it comes to shifts coming up very soon. Shift Market offers functionality to send Discord messages that tag the relevant role when new shifts become available. If shifts are unfilled within 2 hours of that shift's start, a message that tags everybody will be sent.
+3. **Notifications and reminders**: Staff are alerted as soon as a shift opens up, especially if it starts soon. Shift Market sends Discord messages that tag the relevant role when a new shift is available. If a shift is still unfilled two hours before it starts, it sends a message tagging everyone.
 
-*The desk captain can assign shifts to staff even if the staff have not created an account yet.
+*The desk captain can assign shifts to staff who haven't created an account yet.
 
 # Concept design
 

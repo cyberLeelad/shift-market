@@ -6,19 +6,28 @@
 
 # Clean-up steps (5 min each)
 
-- [ ] Ctrl-F everywhere for "TODO" (using a `grep` command line prompt)
-
-- [ ] In design/design.md's problem statement, add evidence beyond your own experience such as maybe a count of swap threads. (P1 feedback)
-
-- [ ] In design/design.md's pitch, replace marketing phrasing with plainer wording. (P1 feedback)
-
 - [ ] Find out if design/concepts/Provisioning.md makeWeeklyShifts can return a set, and how to specify that
-
-- [ ] Clean up `README.md` in both repos.
 
 # Critical missing feature
 
 Release shifts (single date or weekly-recurring) : `Offering` concept and updates to `Shifts` composition.
+
+# P3 Deliverables
+
+- [ ] `githash` command in each repo.
+
+- [ ] Update [README.md](README.md).
+    - [ ] Include instructions in the README for running the tests, including any database setup.
+
+- [ ] [Shift Market, deployed on the web.](https://shift-market.mit-sdg.dev/)
+
+- [ ] Run automated tests to tests/output.txt.
+
+- [ ] Your visual design study (2 slides).
+
+- [ ] An updated user journey.
+
+- [ ] An updated screen recording. Add YouTube link to [README.md](README.md).
 
 # Incremental implementation
 
