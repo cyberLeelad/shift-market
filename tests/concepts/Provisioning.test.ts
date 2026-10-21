@@ -12,6 +12,16 @@ async function setup() {
   return { provisioning: new ProvisioningConcept(database), database };
 }
 
+async function allShiftIds(provisioning: ProvisioningConcept): Promise<string[]> {
+  const rows = await provisioning._all({});
+  return rows.map((row) => row.shift);
+}
+
+async function linkedOf(provisioning: ProvisioningConcept, shift: string): Promise<string[]> {
+  const rows = await provisioning._linked({ shift });
+  return rows.map((row) => row.linked).sort();
+}
+
 describe("Provisioning", () => {
   test("its principle: a one-off shift can be made, and a weekly shift makes one shift for each matching week", async () => {
     const { provisioning } = await setup();
@@ -183,5 +193,70 @@ describe("Provisioning", () => {
       { date: "2026-10-13", start: "08:00" },
       { date: "2026-10-13", start: "14:00" },
     ]);
+  });
+});
+
+describe("Provisioning._linked", () => {
+  test("a single shift has no linked shifts", async () => {
+    const { provisioning } = await setup();
+    const { shift } = await provisioning.makeShift({ start: "09:00", end: "17:00", date: "2026-11-02" });
+
+    expect(await linkedOf(provisioning, shift)).toEqual([]);
+  });
+
+  test("a weekly batch links each shift to every other shift in the batch", async () => {
+    const { provisioning } = await setup();
+    const { shift: first } = await provisioning.makeWeeklyShift({
+      start: "09:00",
+      end: "17:00",
+      day: "MONDAY",
+      first: "2026-11-02",
+      last: "2026-11-16",
+    });
+    const batch = await allShiftIds(provisioning);
+    expect(batch).toHaveLength(3);
+
+    expect(await linkedOf(provisioning, first)).toEqual(batch.filter((id) => id !== first).sort());
+  });
+
+  test("a shift in a weekly batch never lists itself", async () => {
+    const { provisioning } = await setup();
+    await provisioning.makeWeeklyShift({
+      start: "09:00",
+      end: "17:00",
+      day: "MONDAY",
+      first: "2026-11-02",
+      last: "2026-11-16",
+    });
+
+    for (const id of await allShiftIds(provisioning)) {
+      expect(await linkedOf(provisioning, id)).not.toContain(id);
+    }
+  });
+
+  test("shifts from separate batches are not linked to each other", async () => {
+    const { provisioning } = await setup();
+    const { shift: batchA } = await provisioning.makeWeeklyShift({
+      start: "09:00",
+      end: "17:00",
+      day: "MONDAY",
+      first: "2026-11-02",
+      last: "2026-11-09",
+    });
+    const { shift: batchB } = await provisioning.makeWeeklyShift({
+      start: "13:00",
+      end: "21:00",
+      day: "TUESDAY",
+      first: "2026-11-03",
+      last: "2026-11-10",
+    });
+
+    expect(await linkedOf(provisioning, batchA)).not.toContain(batchB);
+    expect(await linkedOf(provisioning, batchB)).not.toContain(batchA);
+  });
+
+  test("an unknown shift has no linked shifts", async () => {
+    const { provisioning } = await setup();
+    expect(await linkedOf(provisioning, "00000000-0000-0000-0000-000000000000")).toEqual([]);
   });
 });
