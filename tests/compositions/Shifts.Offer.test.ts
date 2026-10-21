@@ -1,21 +1,20 @@
-// tests/shifts/offer.test.ts
+// tests/compositions/Shifts.Offer.test.ts
 import { describe, expect, test } from "bun:test";
 import { startShiftMarket } from "../support/app.ts";
 import { ok } from "../support/reusable/results.ts";
 
 const DATE = "2026-11-02";
 
-async function makeShift(api: Awaited<ReturnType<typeof startShiftMarket>>["api"], date = DATE) {
-  return ok(await api.shifts.makeOne({ start: "09:00", end: "13:00", date })).shift;
+type Market = Awaited<ReturnType<typeof startShiftMarket>>;
+
+async function makeShift(api: Market["api"]) {
+  return ok(await api.shifts.makeOne({ start: "09:00", end: "13:00", date: DATE })).shift;
 }
 
-/** Assumed: an endpoint that gives a shift to a staff member. Adjust to the real assignment path. */
-async function shiftHeldBy(
-  api: Awaited<ReturnType<typeof startShiftMarket>>["api"],
-  staff: string,
-) {
+/** A shift held by `user`, obtained the way the app does it: by claiming an unheld shift. */
+async function shiftHeldBy(api: Market["api"], user: string) {
   const shift = await makeShift(api);
-  ok(await api.shifts.assign({ shift, staff }));
+  ok(await api.shifts.claim({ resource: shift, user }));
   return shift;
 }
 
@@ -24,7 +23,7 @@ describe("Shifts.Offer", () => {
     const { api } = await startShiftMarket();
     const shift = await shiftHeldBy(api, "ana");
 
-    const result = await api.shifts.offer({ shift, staff: "ana" });
+    const result = await api.shifts.offer({ resource: shift, user: "ana" });
 
     expect("error" in result).toBe(false);
   });
@@ -32,26 +31,35 @@ describe("Shifts.Offer", () => {
   test("refuses a shift that does not exist", async () => {
     const { api } = await startShiftMarket();
 
-    const result = await api.shifts.offer({ shift: "no-such-shift", staff: "ana" });
+    const result = await api.shifts.offer({ resource: "no-such-shift", user: "ana" });
 
-    expect(result).toEqual({ error: "NO_SUCH_SHIFT" });
+    expect(result).toEqual({ error: "UNKNOWN_SHIFT" });
   });
 
   test("refuses a shift this person does not hold", async () => {
     const { api } = await startShiftMarket();
     const shift = await shiftHeldBy(api, "ana");
 
-    const result = await api.shifts.offer({ shift, staff: "ben" });
+    const result = await api.shifts.offer({ resource: shift, user: "ben" });
 
-    expect(result).toEqual({ error: "NOT_HELD_BY_STAFF" });
+    expect(result).toEqual({ error: "NOT_HELD" });
+  });
+
+  test("refuses a shift nobody holds", async () => {
+    const { api } = await startShiftMarket();
+    const shift = await makeShift(api);
+
+    const result = await api.shifts.offer({ resource: shift, user: "ana" });
+
+    expect(result).toEqual({ error: "NOT_HELD" });
   });
 
   test("refuses a second offer of a shift already up for offer", async () => {
     const { api } = await startShiftMarket();
     const shift = await shiftHeldBy(api, "ana");
-    ok(await api.shifts.offer({ shift, staff: "ana" }));
+    ok(await api.shifts.offer({ resource: shift, user: "ana" }));
 
-    const result = await api.shifts.offer({ shift, staff: "ana" });
+    const result = await api.shifts.offer({ resource: shift, user: "ana" });
 
     expect(result).toEqual({ error: "ALREADY_OFFERED" });
   });
@@ -59,11 +67,9 @@ describe("Shifts.Offer", () => {
   test("refuses an offer by anyone while the shift is already up for offer", async () => {
     const { api } = await startShiftMarket();
     const shift = await shiftHeldBy(api, "ana");
-    ok(await api.shifts.offer({ shift, staff: "ana" }));
+    ok(await api.shifts.offer({ resource: shift, user: "ana" }));
 
-    // "By any owner": another staff member's attempt is also refused, and it
-    // reports the existing offer rather than the holder check.
-    const result = await api.shifts.offer({ shift, staff: "ben" });
+    const result = await api.shifts.offer({ resource: shift, user: "ben" });
 
     expect(result).toEqual({ error: "ALREADY_OFFERED" });
   });
@@ -73,7 +79,7 @@ describe("Shifts.Offer", () => {
     const shift = await shiftHeldBy(api, "ana");
 
     const outcomes = await Promise.all(
-      Array.from({ length: 8 }, () => api.shifts.offer({ shift, staff: "ana" })),
+      Array.from({ length: 8 }, () => api.shifts.offer({ resource: shift, user: "ana" })),
     );
 
     const accepted = outcomes.filter((outcome) => !("error" in outcome));
