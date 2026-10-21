@@ -251,11 +251,13 @@ describe("Shifts.Claim", () => {
       expect(await api.shifts.offer({ resource: shift, user: "ana" })).toEqual({ error: "NOT_HELD" });
     });
 
-    test("the offering staff member cannot claim their own offer", async () => {
+    test("the offering staff member can claim their own offer", async () => {
       const shift = await shiftHeldBy(api, "ana");
       ok(await api.shifts.offer({ resource: shift, user: "ana" }));
 
-      expect(await api.shifts.claim({ user: "ana", resource: shift })).toHaveProperty("error");
+      ok(await api.shifts.claim({ user: "ana", resource: shift }));
+
+      expect("error" in (await api.shifts.offer({ resource: shift, user: "ana" }))).toBe(false);
     });
 
     test("a second claim on an already claimed offer is refused, and the first claimer keeps the shift", async () => {
