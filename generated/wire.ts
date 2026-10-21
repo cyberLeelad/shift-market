@@ -15,13 +15,15 @@ export type AppWideError = never;
 export type ShiftMarketWire = {
   "/shifts/claim": {
     input: {
-      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
-      "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>>;
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
+      "user": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>]>>;
     };
     output: {
+      "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>>, ["reservation"]>>;
+    } | {
       "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>>, ["reservation"]>>;
     };
-    error: { error: AppWideError | "ALREADY_RESERVED" | "INVALID_INPUT" | "TAKEN" | "UNKNOWN_SHIFT" };
+    error: { error: AppWideError | "ALREADY_CLAIMED" | "ALREADY_RESERVED" | "INVALID_INPUT" | "NO_SUCH_OFFER" | "NO_SUCH_RESERVATION" | "TAKEN" | "UNKNOWN_SHIFT" };
   };
   "/shifts/list": {
     input: Record<string, never>;
@@ -62,6 +64,16 @@ export type ShiftMarketWire = {
     };
     error: { error: AppWideError | "IMPROPER_SHIFT_DATES" | "IMPROPER_SHIFT_TIMES" | "INVALID_INPUT" | "NO_MATCHING_DATES" };
   };
+  "/shifts/offer": {
+    input: {
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>[0], ["item"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Offering"]["offer"]>[0], ["item"]>]>>;
+      "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Offering"]["offer"]>[0], ["user"]>>;
+    };
+    output: {
+      "offer": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["offer"]>>, ["offer"]>>;
+    };
+    error: { error: AppWideError | "ALREADY_OFFERED" | "ANOTHERS_OFFER" | "INVALID_INPUT" | "NOT_HELD" | "UNKNOWN_SHIFT" };
+  };
 };
 
 export type HttpAppWideError = never;
@@ -69,13 +81,15 @@ export type HttpAppWideError = never;
 export type ShiftMarketWireHttp = {
   "/shifts/claim": {
     input: {
-      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
-      "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>>;
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
+      "user": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>]>>;
     };
     output: {
+      "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>>, ["reservation"]>>;
+    } | {
       "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>>, ["reservation"]>>;
     };
-    error: { error: HttpAppWideError | "CONFLICT" | "INTERNAL_ERROR" | "INVALID_REQUEST" };
+    error: { error: HttpAppWideError | "CONFLICT" | "INTERNAL_ERROR" | "INVALID_REQUEST" | "NOT_FOUND" };
   };
   "/shifts/list": {
     input: Record<string, never>;
@@ -115,5 +129,15 @@ export type ShiftMarketWireHttp = {
       "shift": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>>, ["shift"]>>;
     };
     error: { error: HttpAppWideError | "INVALID_REQUEST" };
+  };
+  "/shifts/offer": {
+    input: {
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Offering"]["_getOffer"]>[0], ["item"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Offering"]["offer"]>[0], ["item"]>]>>;
+      "user": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Offering"]["offer"]>[0], ["user"]>>;
+    };
+    output: {
+      "offer": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Offering"]["offer"]>>, ["offer"]>>;
+    };
+    error: { error: HttpAppWideError | "INTERNAL_ERROR" | "INVALID_REQUEST" };
   };
 };

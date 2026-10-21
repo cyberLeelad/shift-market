@@ -65,6 +65,8 @@ Defined in [Reserving](../design/concepts/Reserving.md), line 1.
   - Refuses `ALREADY_RESERVED`: That resource is already reserved.
 - `cancel(reservation: Reservation) : returns (reservation: Reservation)`
   - Refuses `NO_SUCH_RESERVATION`: There is no such reservation.
+- `transfer(user: User, resource: Resource) : returns (reservation: Reservation)`
+  - Refuses `NO_SUCH_RESERVATION`: There is no such reservation.
 
 #### Queries
 
@@ -93,7 +95,7 @@ _the authored explanation; this section records the generated shape._
 ### the holder of (shift)
 
 Authored path: `Shifts.holderOf`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 4.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 3.
 
 ```former
 Former "the holder of (shift)" — inputs (shift); bindings (holder); promises at most one record — forms:
@@ -105,7 +107,7 @@ Former "the holder of (shift)" — inputs (shift); bindings (holder); promises a
 ### the shift organizer
 
 Authored path: `Shifts.ShiftOrganizer`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 4.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 3.
 
 ```former
 Former "the shift organizer" — inputs (); bindings (shift, start, end, date); promises exactly one record — forms:
@@ -144,23 +146,67 @@ then
 ### Shifts.Claim:already_reserved
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 18.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 21.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
 where
   Provisioning._exists (shift: resource) has (exists: true)
   Reserving._holderOf (resource)
+  no Offering._getOffer (item: resource)
 then
   RequestBoundary.respond (error: "TAKEN", requestId)
+```
+
+### Shifts.Claim:claim_offered
+
+Authored path: `Shifts.Claim`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+
+```reaction
+when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource) has (exists: true)
+  Offering._getOffer (item: resource) has (offer)
+then
+  Offering.resolve (offer)
+```
+
+### Shifts.Claim:claim_offered#2
+
+Authored path: `Shifts.Claim`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+
+```reaction
+when Offering.resolve (offer), asked by Shifts.Claim:claim_offered
+where
+  earlier, RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
+then
+  Reserving.transfer (resource, user)
+```
+
+### Shifts.Claim:claim_offered#3
+
+Authored path: `Shifts.Claim`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+
+```reaction
+when Reserving.transfer (resource, user, reservation: next), asked by Shifts.Claim:claim_offered#2
+where
+  earlier, RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
+then
+  RequestBoundary.respond (requestId, reservation: next)
 ```
 
 ### Shifts.Claim:doesnt_exist
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 18.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 21.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
@@ -173,8 +219,8 @@ then
 ### Shifts.Claim:success
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 18.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 21.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
@@ -188,22 +234,22 @@ then
 ### Shifts.Claim:success#2
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 18.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 21.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
 
 ```reaction
-when Reserving.reserve (resource, user, reservation), asked by Shifts.Claim:success
+when Reserving.reserve (resource, user, reservation: next), asked by Shifts.Claim:success
 where
   earlier, RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
 then
-  RequestBoundary.respond (requestId, reservation)
+  RequestBoundary.respond (requestId, reservation: next)
 ```
 
 ### Shifts.List
 
 Authored path: `Shifts.List`.
 - Covered by [Shifts](../design/compositions/Shifts.md), line 3.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 7.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 6.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/list", requestId)
@@ -214,8 +260,8 @@ then
 ### Shifts.MakeOne
 
 Authored path: `Shifts.MakeOne`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 10.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 12.
 
 ```reaction
 when RequestBoundary.request (date, end, path: "/shifts/makeOne", requestId, start)
@@ -226,8 +272,8 @@ then
 ### Shifts.MakeOne#2
 
 Authored path: `Shifts.MakeOne`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 10.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 12.
 
 ```reaction
 when Provisioning.makeShift (date, end, start, shift), asked by Shifts.MakeOne
@@ -240,8 +286,8 @@ then
 ### Shifts.MakeWeekly
 
 Authored path: `Shifts.MakeWeekly`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 11.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 15.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 13.
 
 ```reaction
 when RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, start)
@@ -252,8 +298,8 @@ then
 ### Shifts.MakeWeekly#2
 
 Authored path: `Shifts.MakeWeekly`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 11.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 15.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 13.
 
 ```reaction
 when Provisioning.makeWeeklyShift (day, end, first, last, start, shift), asked by Shifts.MakeWeekly
@@ -261,6 +307,96 @@ where
   earlier, RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, start)
 then
   RequestBoundary.respond (requestId, shift)
+```
+
+### Shifts.Offer:already_offered
+
+Authored path: `Shifts.Offer`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+
+```reaction
+when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
+where
+  Offering._getOffer (item: resource)
+then
+  RequestBoundary.respond (error: "ALREADY_OFFERED", requestId)
+```
+
+### Shifts.Offer:doesnt_exist
+
+Authored path: `Shifts.Offer`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+
+```reaction
+when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource) has (exists: false)
+then
+  RequestBoundary.respond (error: "UNKNOWN_SHIFT", requestId)
+```
+
+### Shifts.Offer:held_by_other
+
+Authored path: `Shifts.Offer`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+
+```reaction
+when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource) has (exists: true)
+  no Offering._getOffer (item: resource)
+  Reserving._holderOf (resource) and not (holder: user)
+then
+  RequestBoundary.respond (error: "NOT_HELD", requestId)
+```
+
+### Shifts.Offer:success
+
+Authored path: `Shifts.Offer`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+
+```reaction
+when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource) has (exists: true)
+  Reserving._holderOf (resource) has (holder: user)
+  no Offering._getOffer (item: resource)
+then
+  Offering.offer (item: resource, user)
+```
+
+### Shifts.Offer:success#2
+
+Authored path: `Shifts.Offer`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+
+```reaction
+when Offering.offer (item: resource, user, offer), asked by Shifts.Offer:success
+where
+  earlier, RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
+then
+  RequestBoundary.respond (offer, requestId)
+```
+
+### Shifts.Offer:unheld
+
+Authored path: `Shifts.Offer`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+
+```reaction
+when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
+where
+  Provisioning._exists (shift: resource) has (exists: true)
+  no Offering._getOffer (item: resource)
+  no Reserving._holderOf (resource)
+then
+  RequestBoundary.respond (error: "NOT_HELD", requestId)
 ```
 
 ## Endpoint input contracts
@@ -273,3 +409,4 @@ not listed here have no explicit input contract.
 - `/shifts/claim` — requires `resource`, `user`
 - `/shifts/makeOne` — requires `start`, `end`, `date`
 - `/shifts/makeWeekly` — requires `start`, `end`, `day`, `first`, `last`
+- `/shifts/offer` — requires `resource`, `user`

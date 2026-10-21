@@ -44,29 +44,45 @@ const MakeWeekly = endpoint(
 
 // Manage ownership of shifts
 
-// 3 branches
-const Claim = endpoint("/shifts/claim", ({ resource: shift, user, reservation }) =>
-  receive({ resource: shift, user }).then(
-    // shift exists, not held -- reserve it
-    where(
-      Provisioning._exists({ shift }).is({ exists: true }),
-      no(Reserving._holderOf({ resource: shift })),
-    )
-      .then(Reserving.reserve({ resource: shift, user }).responds({ reservation }))
-      .then(respond({ reservation }))
-      .named("success"),
-    // shift doesn't exist
-    where(Provisioning._exists({ shift }).is({ exists: false }))
-      .then(respond({ error: "UNKNOWN_SHIFT" }))
-      .named("doesnt_exist"),
-    // shift exists and is held
-    where(
-      Provisioning._exists({ shift }).is({ exists: true }),
-      Reserving._holderOf({ resource: shift }),
-    )
-      .then(respond({ error: "TAKEN" }))
-      .named("already_reserved"),
-  ),
+const Claim = endpoint(
+  "/shifts/claim",
+  ({ resource: shift, user, offer, reservation, next }) =>
+    receive({ resource: shift, user }).then(
+      // exists, no holder -- reserve it
+      where(
+        Provisioning._exists({ shift }).is({ exists: true }),
+        no(Reserving._holderOf({ resource: shift })),
+      )
+        .then(Reserving.reserve({ resource: shift, user }).responds({ reservation: next }))
+        .then(respond({ reservation: next }))
+        .named("success"),
+
+      // doesn't exist
+      where(Provisioning._exists({ shift }).is({ exists: false }))
+        .then(respond({ error: "UNKNOWN_SHIFT" }))
+        .named("doesnt_exist"),
+
+      // held, not offered -- taken
+      where(
+        Provisioning._exists({ shift }).is({ exists: true }),
+        Reserving._holderOf({ resource: shift }),
+        no(Offering._getOffer({ item: shift })),
+      )
+        .then(respond({ error: "TAKEN" }))
+        .named("already_reserved"),
+
+      // offered -- any user, including the offerer, may claim it
+      where(
+        Provisioning._exists({ shift }).is({ exists: true }),
+        Offering._getOffer({ item: shift }).is({ offer }),
+      )
+        // Gate first: only one claimer can close the offer.
+        .then(Offering.resolve({ offer }))
+        .then(Reserving.transfer({ resource: shift, user }).responds({ reservation: next }))
+        .then(respond({ reservation: next }))
+        .named("claim_offered"),
+    ),
+  { input: { required: ["resource", "user"] } },
 );
 
 const Offer = endpoint(
