@@ -65,4 +65,7 @@ _all() : many (shift: Shift, start: Time, end: Time, date: Date)
 
 _exists(shift: Shift) : one (exists: Flag)
   Returns true if and only if shift exists in Shifts, and false otherwise.
+
+_linked(shift: Shift) : many (linked: Shift)
+  Answers any shifts in this one's linked array.
 ```
