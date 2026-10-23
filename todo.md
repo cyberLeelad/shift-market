@@ -1,12 +1,14 @@
 # Todo List
 
-1. Incrementally develop the `Shifts` composition to match my most recently spec for `Shifts` as of last night ([this commit](https://github.com/cyberLeelad/shift-market/blob/cda8e38a23b326f766c4405c8e4f2b0d40f627aa/design/compositions/Shifts.md). Update frontend at each step.
+1. Copy features from ConceptBox to allow users to register, sign-in, and exist.
 
-# Critical missing feature
+2. Incorporate those functionalities to support access gating and such. Also allowing separation between staff members (with kerb rep) vs users.
 
-Release shifts (single date or weekly-recurring) : `Offering` concept and updates to `Shifts` composition.
+# P4 Deliverables
 
-# P3 Deliverables
+- [ ] IDK, check P4 instructions
+
+Probably includes:
 
 - [ ] `githash` command in each repo.
 
@@ -16,8 +18,6 @@ Release shifts (single date or weekly-recurring) : `Offering` concept and update
 - [ ] [Shift Market, deployed on the web.](https://shift-market.mit-sdg.dev/)
 
 - [ ] Run automated tests to tests/output.txt.
-
-- [ ] Your visual design study (2 slides).
 
 - [ ] An updated user journey.
 
@@ -53,6 +53,4 @@ On each step,
 
 # Document progress in design notebook
 
-Demonstrate your incremental work in your design notes.
-
-Record incremenetal progress, design notes, significant decisions, challenges, future work, going back to previous steps, changing your implementations or concepts, etc.
+Demonstrate your incremental work in your design notes. Record incremenetal progress, design notes, significant decisions, challenges, future work, going back to previous steps, changing your implementations or concepts, etc.

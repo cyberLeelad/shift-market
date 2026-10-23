@@ -8,6 +8,27 @@ _specifications and composition source, then regenerate this file._
 
 ## Concepts
 
+### Authenticating
+
+Defined in [Authenticating](../design/concepts/Authenticating.md), line 1.
+
+#### Actions
+
+- `set(user: User, password: String) : returns (user: User)`
+  - Refuses `INVALID_PASSWORD`: A password must have 8 to 128 characters.
+  - Refuses `PASSWORD_SET`: This account already has a password.
+- `authenticate(user: User, password: String) : returns (user: User)`
+  - Refuses `INVALID_CREDENTIALS`: The username or password is incorrect.
+
+#### Queries
+
+- `_acceptable(password: String) : one (acceptable: Flag)`
+
+#### Instances
+
+- `Authenticating` — instance of `Authenticating` — [Shift Market types](../design/types.md), line 21.
+  - `User` is `Registering.User` — [Shift Market types](../design/types.md), line 22.
+
 ### Offering
 
 Defined in [Offering](../design/concepts/Offering.md), line 1.
@@ -28,9 +49,9 @@ Defined in [Offering](../design/concepts/Offering.md), line 1.
 
 #### Instances
 
-- `Offering` — instance of `Offering` — [Application types](../design/types.md), line 24.
-  - `Item` is `Shift` — [Application types](../design/types.md), line 26.
-  - `User` is `Kerberos` — [Application types](../design/types.md), line 25.
+- `Offering` — instance of `Offering` — [Shift Market types](../design/types.md), line 34.
+  - `Item` is `Shift` — [Shift Market types](../design/types.md), line 36.
+  - `User` is `Kerberos` — [Shift Market types](../design/types.md), line 35.
 
 ### Provisioning
 
@@ -53,8 +74,27 @@ Defined in [Provisioning](../design/concepts/Provisioning.md), line 1.
 
 #### Instances
 
-- `Provisioning` — instance of `Provisioning` — [Application types](../design/types.md), line 21.
-  - `Time` is `ClockTime` — [Application types](../design/types.md), line 22.
+- `Provisioning` — instance of `Provisioning` — [Shift Market types](../design/types.md), line 31.
+  - `Time` is `ClockTime` — [Shift Market types](../design/types.md), line 32.
+
+### Registering
+
+Defined in [Registering](../design/concepts/Registering.md), line 1.
+
+#### Actions
+
+- `register(username: String) : returns (user: User)`
+  - Refuses `INVALID_USERNAME`: A username must have 3 to 32 letters, digits, underscores, or hyphens.
+  - Refuses `USERNAME_TAKEN`: That username is taken.
+
+#### Queries
+
+- `_byUsername(username: String) : optional (user: User)`
+- `_username(user: User) : optional (username: String)`
+
+#### Instances
+
+- `Registering` — instance of `Registering` — [Shift Market types](../design/types.md), line 19.
 
 ### Reserving
 
@@ -76,17 +116,34 @@ Defined in [Reserving](../design/concepts/Reserving.md), line 1.
 
 #### Instances
 
-- `Reserving` — instance of `Reserving` — [Application types](../design/types.md), line 17.
-  - `Resource` is `Shift` — [Application types](../design/types.md), line 19.
-  - `User` is `Kerberos` — [Application types](../design/types.md), line 18.
+- `Reserving` — instance of `Reserving` — [Shift Market types](../design/types.md), line 27.
+  - `Resource` is `Shift` — [Shift Market types](../design/types.md), line 29.
+  - `User` is `Kerberos` — [Shift Market types](../design/types.md), line 28.
+
+### Sessioning
+
+Defined in [Sessioning](../design/concepts/Sessioning.md), line 1.
+
+#### Actions
+
+- `start(subject: Subject) : returns (session: Session, expiresAt: DateTime)`
+- `use(session: Session) : returns (subject: Subject)`
+  - Refuses `NOT_SIGNED_IN`: Your session has ended. Sign in again.
+- `end(session: Session) : returns (session: Session)`
+  - Refuses `NOT_SIGNED_IN`: Your session has ended. Sign in again.
+
+#### Instances
+
+- `Sessioning` — instance of `Sessioning` — [Shift Market types](../design/types.md), line 24.
+  - `Subject` is `Registering.User` — [Shift Market types](../design/types.md), line 25.
 
 ## Application types
 
 Concrete types:
 
-- `ClockTime` — [Application types](../design/types.md), line 12.
-- `Kerberos` — [Application types](../design/types.md), line 6.
-- `Shift` — [Application types](../design/types.md), line 9.
+- `ClockTime` — [Shift Market types](../design/types.md), line 14.
+- `Kerberos` — [Shift Market types](../design/types.md), line 8.
+- `Shift` — [Shift Market types](../design/types.md), line 11.
 
 ## Formers
 

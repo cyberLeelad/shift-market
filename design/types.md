@@ -1,4 +1,6 @@
-# Application types
+# Shift Market types
+
+Every user in Shift Market is a Registering user who signed up with a password. That user is the one who has a password in Authenticating and the one a session belongs to.
 
 Staff members are identified by kerberos, and each shift is held by one staff member at a time.
 
@@ -14,6 +16,14 @@ concrete ClockTime
 ```
 
 ```instances
+instantiate Registering
+
+instantiate Authenticating with
+  User is Registering.User
+
+instantiate Sessioning with
+  Subject is Registering.User
+
 instantiate Reserving with
   User is Kerberos
   Resource is Shift
