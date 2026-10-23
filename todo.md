@@ -1,8 +1,18 @@
 # Todo List
 
-1. Copy features from ConceptBox to allow users to register, sign-in, and exist.
+1. Copy features from ConceptBox to allow users to register, sign-in, and exist. Concepts copied, but not active without compositions. From [ConceptBox instructions](https://github.com/mit-sdg/conceptbox/tree/main#copy-parts-into-your-app):
 
-2. Incorporate those functionalities to support access gating and such. Also allowing separation between staff members (with kerb rep) vs users.
+    1. Copy the accounts and passwords compositions (design/compositions/reusable/ and src/compositions/reusable/). The compositions in ConceptBox all import src/compositions/reusable/inputs.ts, so copy it with them.
+
+    2. Copy frontend/src/reusable/ without CommonsButton.vue, CommonsCallback.vue, and CommonsMark.vue.
+
+    3. In src/host/http.ts, add accountsHttp.publicErrors and passwordsHttp.publicErrors to publicErrors, and make the session cookie with accountsHttp.sessionCookie, passing passwordsHttp.startingSessions.
+
+    4. In your App.vue, put PasswordForm.vue inside SignIn.vue.
+
+    5. tests/compositions/signing-in-modules.test.ts assembles an app with only passwords and an app with only Commons. Copy this with only the passwords part.
+
+2. Incorporate those functionalities to support access gating and such. Keep in mind separation between staff members (with kerb rep) vs users. Critical for captain to be able to assign any staff member to a shift, even if that staff member hasn't registered themself.
 
 # P4 Deliverables
 
