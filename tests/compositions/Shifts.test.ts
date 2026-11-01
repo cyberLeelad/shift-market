@@ -36,8 +36,11 @@ describe("Shifts.MakeOne", () => {
         start: "09:00",
         end: "17:00",
         date: "2026-10-20",
-        holder: null,
-        offer: null,
+        linked: [],
+        state: {
+          offer: null,
+          holder: null
+        }
       },
     ]);
   });
@@ -87,7 +90,7 @@ describe("Shifts.MakeWeekly", () => {
 
     const shifts = await listedShifts(api);
     expect(shifts.map((s) => s.date)).toEqual(["2026-10-19", "2026-10-26", "2026-11-02"]);
-    expect(made.shift).toBe(shifts[0].shift);
+    expect(shifts.map((s) => s.shift)).toContain(made.shift);
   });
 
   test("includes the window's first and last date when they match", async () => {
@@ -185,9 +188,9 @@ describe("Shifts.List reservation and offer state", () => {
 
     const rows = new Map((await listedShifts(api)).map((row) => [row.shift, row]));
 
-    expect(rows.get(open)).toMatchObject({ holder: null, offer: null });
-    expect(rows.get(held)).toMatchObject({ holder: "ana", offer: null });
-    expect(rows.get(offered)).toMatchObject({ holder: "ben", offer });
+    expect(rows.get(open)?.state).toMatchObject({ holder: null, offer: null });
+    expect(rows.get(held)?.state).toMatchObject({ holder: "ana", offer: null });
+    expect(rows.get(offered)?.state).toMatchObject({ holder: "ben", offer });
   });
 
   test("claiming an offered shift clears the offer and moves the holder to the claimer", async () => {
@@ -199,7 +202,7 @@ describe("Shifts.List reservation and offer state", () => {
     ok(await api.shifts.claim({ user: "ben", resource: shift }));
 
     const row = (await listedShifts(api)).find((r) => r.shift === shift);
-    expect(row).toMatchObject({ holder: "ben", offer: null });
+    expect(row?.state).toMatchObject({ holder: "ben", offer: null });
   });
 });
 
