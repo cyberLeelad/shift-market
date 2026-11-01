@@ -1,7 +1,7 @@
 // tests/compositions/Shifts.Offer.test.ts
 import { describe, expect, test } from "bun:test";
 import { startShiftMarket } from "../support/app.ts";
-import { ok } from "../support/reusable/results.ts";
+import { ok } from "../support/results.ts";
 
 const DATE = "2026-11-02";
 
