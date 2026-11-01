@@ -5,9 +5,9 @@ import {
   AnothersOffer,
   NoSuchOffer,
   OfferingConcept,
-} from "../../src/concepts/Offering.ts";
-import { testDatabase } from "../support/reusable/mongo.ts";
-import { expectOneWinner } from "../support/reusable/race.ts";
+} from "../../src/concepts/Offering/Offering.ts";
+import { testDatabase } from "../support/mongo.ts";
+import { expectOneWinner } from "../support/race.ts";
 
 async function setup() {
   const database = await testDatabase();
@@ -20,7 +20,7 @@ describe("Offering", () => {
     const { offer } = await offering.offer({ item: "oct-13-6pm", user: "fionna" });
     expect(await offering._getOffer({ item: "oct-13-6pm" })).toEqual([{ offer }]);
 
-    expect(await offering.resolve({ user: "cake", offer })).toEqual({});
+    expect(await offering.resolve({ offer })).toEqual({});
     expect(await offering._getOffer({ item: "oct-13-6pm" })).toEqual([]);
 
     const again = await offering.offer({ item: "oct-13-6pm", user: "fionna" });
@@ -30,7 +30,7 @@ describe("Offering", () => {
   test("closed offers are kept as history, so a claimed offer is still stored, marked closed", async () => {
     const { offering, database } = await setup();
     const { offer } = await offering.offer({ item: "oct-13-6pm", user: "fionna" });
-    await offering.resolve({ user: "cake", offer });
+    await offering.resolve({ offer });
 
     const stored = await database.collection("offering.offers").find({ item: "oct-13-6pm" }).toArray();
     expect(stored).toEqual([expect.objectContaining({ _id: offer, owner: "fionna", closed: true })]);
@@ -39,7 +39,7 @@ describe("Offering", () => {
   test("a different user can offer an item again after its earlier offer was claimed", async () => {
     const { offering } = await setup();
     const { offer } = await offering.offer({ item: "oct-13-6pm", user: "fionna" });
-    await offering.resolve({ user: "cake", offer });
+    await offering.resolve({ offer });
 
     const later = await offering.offer({ item: "oct-13-6pm", user: "cake" });
     expect(await offering._getOffer({ item: "oct-13-6pm" })).toEqual([{ offer: later.offer }]);
@@ -72,9 +72,9 @@ describe("Offering", () => {
   test("claiming a closed offer is refused with ALREADY_CLAIMED, and the claim does not change the offer", async () => {
     const { offering } = await setup();
     const { offer } = await offering.offer({ item: "oct-13-6pm", user: "fionna" });
-    await offering.resolve({ user: "cake", offer });
+    await offering.resolve({ offer });
 
-    const refusal = offering.resolve({ user: "maya", offer });
+    const refusal = offering.resolve({ offer });
     await expect(refusal).rejects.toThrow(AlreadyClaimed);
     await expect(refusal).rejects.toThrow("Cannot claim a closed offer.");
     expect(await offering._getOffer({ item: "oct-13-6pm" })).toEqual([]);
@@ -82,7 +82,7 @@ describe("Offering", () => {
 
   test("claiming an offer that never existed is refused with NO_SUCH_OFFER, and changes nothing", async () => {
     const { offering } = await setup();
-    const refusal = offering.resolve({ user: "cake", offer: "never-existed" });
+    const refusal = offering.resolve({ offer: "never-existed" });
     await expect(refusal).rejects.toThrow(NoSuchOffer);
     await expect(refusal).rejects.toThrow("Cannot claim an offer that does not exist.");
     expect(await offering._openOffers({})).toEqual([]);
@@ -98,7 +98,7 @@ describe("Offering", () => {
     const first = await offering.offer({ item: "oct-13-6pm", user: "fionna" });
     const second = await offering.offer({ item: "oct-14-6pm", user: "cake" });
     const third = await offering.offer({ item: "oct-15-6pm", user: "fionna" });
-    await offering.resolve({ user: "maya", offer: second.offer });
+    await offering.resolve({ offer: second.offer });
 
     const open = await offering._openOffers({});
     expect(open).toHaveLength(2);
@@ -138,7 +138,7 @@ describe("Offering", () => {
     const { offering } = await setup();
     const { offer } = await offering.offer({ item: "oct-13-6pm", user: "fionna" });
     await expectOneWinner(
-      [offering.resolve({ user: "cake", offer }), offering.resolve({ user: "maya", offer })],
+      [offering.resolve({ offer }), offering.resolve({ offer })],
       AlreadyClaimed,
     );
     expect(await offering._openOffers({})).toEqual([]);
