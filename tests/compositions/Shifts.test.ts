@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { startShiftMarket } from "../support/app.ts";
-import { ok } from "../support/reusable/results.ts";
+import { ok } from "../support/results.ts";
 
 type Market = Awaited<ReturnType<typeof startShiftMarket>>;
 
