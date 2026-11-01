@@ -202,6 +202,59 @@ Former "the shift organizer" — inputs (); bindings (shift, start, end, date); 
 
 ## Reactions
 
+### Accounts.SignOut
+
+Authored path: `Accounts.SignOut`.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 11.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 14.
+
+```reaction
+when RequestBoundary.request (path: "/auth/logout", requestId, session)
+then
+  Sessioning.end (session)
+```
+
+### Accounts.SignOut#2
+
+Authored path: `Accounts.SignOut`.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 11.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 14.
+
+```reaction
+when Sessioning.end (session), asked by Accounts.SignOut
+where
+  earlier, RequestBoundary.request (path: "/auth/logout", requestId, session)
+then
+  RequestBoundary.respond (requestId)
+```
+
+### Accounts.identifyMe
+
+Authored path: `Accounts.identifyMe`.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 5.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 8.
+
+```reaction
+when RequestBoundary.request (path: "/auth/me", requestId, session)
+then
+  Sessioning.use (session)
+```
+
+### Accounts.identifyMe#2
+
+Authored path: `Accounts.identifyMe`.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 5.
+- Covered by [Accounts](../design/compositions/access/accounts.md), line 8.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Accounts.identifyMe
+where
+  Registering._username (user) has (username)
+  earlier, RequestBoundary.request (path: "/auth/me", requestId, session)
+then
+  RequestBoundary.respond (requestId, username)
+```
+
 ### DeliverFaultToAsker
 
 ```reaction
@@ -220,6 +273,128 @@ where
   earlier, RequestBoundary.request (requestId)
 then
   RequestBoundary.respond (error: message, requestId)
+```
+
+### Passwords.Register:accepted
+
+Authored path: `Passwords.Register`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/register", requestId, username)
+where
+  Authenticating._acceptable (password) has (acceptable: true)
+then
+  Registering.register (username)
+```
+
+### Passwords.Register:accepted#2
+
+Authored path: `Passwords.Register`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+
+```reaction
+when Registering.register (username, user), asked by Passwords.Register:accepted
+where
+  earlier, RequestBoundary.request (password, path: "/auth/register", requestId, username)
+then
+  Authenticating.set (password, user)
+```
+
+### Passwords.Register:accepted#3
+
+Authored path: `Passwords.Register`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+
+```reaction
+when Authenticating.set (password, user), asked by Passwords.Register:accepted#2
+then
+  Sessioning.start (subject: user)
+```
+
+### Passwords.Register:accepted#4
+
+Authored path: `Passwords.Register`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+
+```reaction
+when Sessioning.start (subject: user, expiresAt, session), asked by Passwords.Register:accepted#3
+where
+  earlier, RequestBoundary.request (password, path: "/auth/register", requestId, username)
+then
+  RequestBoundary.respond (expiresAt, requestId, session, user)
+```
+
+### Passwords.Register:refused
+
+Authored path: `Passwords.Register`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/register", requestId, username)
+where
+  Authenticating._acceptable (password) has (acceptable: false)
+then
+  RequestBoundary.respond (error: "INVALID_PASSWORD", requestId)
+```
+
+### Passwords.SignIn:known
+
+Authored path: `Passwords.SignIn`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/login", requestId, username)
+where
+  Registering._byUsername (username) has (user)
+then
+  Authenticating.authenticate (password, user)
+```
+
+### Passwords.SignIn:known#2
+
+Authored path: `Passwords.SignIn`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+
+```reaction
+when Authenticating.authenticate (password, user), asked by Passwords.SignIn:known
+then
+  Sessioning.start (subject: user)
+```
+
+### Passwords.SignIn:known#3
+
+Authored path: `Passwords.SignIn`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+
+```reaction
+when Sessioning.start (subject: user, expiresAt, session), asked by Passwords.SignIn:known#2
+where
+  earlier, RequestBoundary.request (password, path: "/auth/login", requestId, username)
+then
+  RequestBoundary.respond (expiresAt, requestId, session, user)
+```
+
+### Passwords.SignIn:unknown
+
+Authored path: `Passwords.SignIn`.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+
+```reaction
+when RequestBoundary.request (password, path: "/auth/login", requestId, username)
+where
+  no Registering._byUsername (username)
+then
+  RequestBoundary.respond (error: "INVALID_CREDENTIALS", requestId)
 ```
 
 ### Shifts.Claim:already_reserved
@@ -485,6 +660,10 @@ object or lacks a required key. The response uses `INVALID_INPUT` and names
 the path or missing key. A declared default fills an absent key. Endpoints
 not listed here have no explicit input contract.
 
+- `/auth/login` — requires `password`, `username`
+- `/auth/logout` — requires `session`
+- `/auth/me` — requires `session`
+- `/auth/register` — requires `password`, `username`
 - `/shifts/claim` — requires `resource`, `user`
 - `/shifts/makeOne` — requires `start`, `end`, `date`
 - `/shifts/makeWeekly` — requires `start`, `end`, `day`, `first`, `last`

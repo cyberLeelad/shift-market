@@ -6,7 +6,8 @@ import { db } from "./db.ts";
 
 const application = assembleApplication();
 const gateway = createGateway({ application });
-const api = createHttpHandler({ application, gateway, policy });
+const publicOrigin =(( process.env.PUBLIC_ORIGIN) ?? "http://localhost:8080");
+const api = createHttpHandler({ application, gateway, policy: policy(publicOrigin) });
 const dist = `${import.meta.dir}/../web/dist`;
 
 const server = Bun.serve({

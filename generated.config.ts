@@ -11,8 +11,9 @@ export default {
     documents: [
       new URL("./design/types.md", import.meta.url),
       new URL("./design/compositions/Shifts.md", import.meta.url),
-      // New compositions are added here
+      new URL("./design/compositions/access/accounts.md", import.meta.url),
+      new URL("./design/compositions/access/passwords.md", import.meta.url),
     ],
   },
-  projections: [httpWire({ policy, name: "ShiftMarketWireHttp" })],
+  projections: [httpWire({ policy: policy("http://localhost:3000"), name: "ShiftMarketWireHttp" })],
 };
