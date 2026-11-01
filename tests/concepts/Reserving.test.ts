@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { AlreadyReserved, NoSuchReservation, ReservingConcept } from "../../src/concepts/Reserving.ts";
-import { testDatabase } from "../support/reusable/mongo.ts";
-import { expectOneWinner } from "../support/reusable/race.ts";
+import { AlreadyReserved, NoSuchReservation, ReservingConcept } from "../../src/concepts/Reserving/Reserving.ts";
+import { testDatabase } from "../support/mongo.ts";
+import { expectOneWinner } from "../support/race.ts";
 
 async function setup() {
   const database = await testDatabase();

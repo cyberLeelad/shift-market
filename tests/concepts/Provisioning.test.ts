@@ -4,8 +4,8 @@ import {
   ImproperShiftTimes,
   NoMatchingDates,
   ProvisioningConcept,
-} from "../../src/concepts/Provisioning.ts";
-import { testDatabase } from "../support/reusable/mongo.ts";
+} from "../../src/concepts/Provisioning/Provisioning.ts";
+import { testDatabase } from "../support/mongo.ts";
 
 async function setup() {
   const database = await testDatabase();
