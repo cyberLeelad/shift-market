@@ -53,6 +53,19 @@ export type ShiftMarketWire = {
     };
     error: { error: AppWideError | "INVALID_INPUT" | "INVALID_PASSWORD" | "INVALID_USERNAME" | "PASSWORD_SET" | "USERNAME_TAKEN" };
   };
+  "/shifts/assign": {
+    input: {
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
+      "staff": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["user"]>]>>;
+    };
+    output: {
+      "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>>, ["reservation"]>>;
+    } | {
+      "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>>, ["reservation"]>>;
+    };
+    error: { error: AppWideError | "ALREADY_CLAIMED" | "ALREADY_RESERVED" | "INVALID_INPUT" | "NOT_CAPTAIN" | "NOT_SIGNED_IN" | "NO_SUCH_OFFER" | "NO_SUCH_RESERVATION" | "UNKNOWN_SHIFT" };
+  };
   "/shifts/claim": {
     input: {
       "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
@@ -90,12 +103,13 @@ export type ShiftMarketWire = {
     input: {
       "date": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeShift"]>[0], ["date"]>>;
       "end": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeShift"]>[0], ["end"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
       "start": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeShift"]>[0], ["start"]>>;
     };
     output: {
       "shift": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeShift"]>>, ["shift"]>>;
     };
-    error: { error: AppWideError | "IMPROPER_SHIFT_TIMES" | "INVALID_INPUT" };
+    error: { error: AppWideError | "IMPROPER_SHIFT_TIMES" | "INVALID_INPUT" | "NOT_CAPTAIN" | "NOT_SIGNED_IN" };
   };
   "/shifts/makeWeekly": {
     input: {
@@ -103,12 +117,13 @@ export type ShiftMarketWire = {
       "end": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>[0], ["end"]>>;
       "first": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>[0], ["first"]>>;
       "last": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>[0], ["last"]>>;
+      "session": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Sessioning"]["use"]>[0], ["session"]>>;
       "start": Jsonify<AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>[0], ["start"]>>;
     };
     output: {
       "shift": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>>, ["shift"]>>;
     };
-    error: { error: AppWideError | "IMPROPER_SHIFT_DATES" | "IMPROPER_SHIFT_TIMES" | "INVALID_INPUT" | "NO_MATCHING_DATES" };
+    error: { error: AppWideError | "IMPROPER_SHIFT_DATES" | "IMPROPER_SHIFT_TIMES" | "INVALID_INPUT" | "NOT_CAPTAIN" | "NOT_SIGNED_IN" | "NO_MATCHING_DATES" };
   };
   "/shifts/offer": {
     input: {
@@ -157,6 +172,18 @@ export type ShiftMarketWireHttp = {
     };
     error: { error: HttpAppWideError | "CONFLICT" | "INVALID_REQUEST" };
   };
+  "/shifts/assign": {
+    input: {
+      "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>]>>;
+      "staff": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["user"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["user"]>]>>;
+    };
+    output: {
+      "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>>, ["reservation"]>>;
+    } | {
+      "reservation": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>>, ["reservation"]>>;
+    };
+    error: { error: HttpAppWideError | "CONFLICT" | "FORBIDDEN" | "INTERNAL_ERROR" | "INVALID_REQUEST" | "NOT_FOUND" | "UNAUTHORIZED" };
+  };
   "/shifts/claim": {
     input: {
       "resource": Jsonify<OneOf<[AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["transfer"]>[0], ["resource"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Provisioning"]["_exists"]>[0], ["shift"]>, AtPath<Parameters<(typeof ApplicationConceptSet.concepts)["Reserving"]["reserve"]>[0], ["resource"]>]>>;
@@ -199,7 +226,7 @@ export type ShiftMarketWireHttp = {
     output: {
       "shift": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeShift"]>>, ["shift"]>>;
     };
-    error: { error: HttpAppWideError | "INVALID_REQUEST" };
+    error: { error: HttpAppWideError | "INTERNAL_ERROR" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/shifts/makeWeekly": {
     input: {
@@ -212,7 +239,7 @@ export type ShiftMarketWireHttp = {
     output: {
       "shift": Jsonify<AtPath<Awaited<ReturnType<(typeof ApplicationConceptSet.concepts)["Provisioning"]["makeWeeklyShift"]>>, ["shift"]>>;
     };
-    error: { error: HttpAppWideError | "INVALID_REQUEST" };
+    error: { error: HttpAppWideError | "INTERNAL_ERROR" | "INVALID_REQUEST" | "UNAUTHORIZED" };
   };
   "/shifts/offer": {
     input: {

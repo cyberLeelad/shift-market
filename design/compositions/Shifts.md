@@ -6,11 +6,12 @@ Any logged in user can [list the shifts and their holders (if existent)](reactio
 Shifts.List at /shifts/list
 ```
 
-Desk captains can [make individual shifts](reaction:Shifts.MakeOne) and [make weekly shifts](reaction:Shifts.MakeWeekly).
+Desk captains can [make individual shifts](reaction:Shifts.MakeOne) and [make weekly shifts](reaction:Shifts.MakeWeekly). They can also [assign a shift](reaction:Shifts.Assign) to a kerberos.
 
 ```endpoints
 Shifts.MakeOne at /shifts/makeOne
 Shifts.MakeWeekly at /shifts/makeWeekly
+Shifts.Assign at /shifts/assign
 ```
 
 If a staff member wants coverage, they can [offer a shift](reaction:Shifts.Offer). The offer ensures that a staff member cannot give up a shift until another person agrees to take it (by claiming it). The request is refused if the shift is already up for offer (by any owner), the shift does not exist, or the shift is not held by this person.

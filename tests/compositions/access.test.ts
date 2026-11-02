@@ -32,6 +32,8 @@ import { ok } from "../support/results.ts";
 
 type Market = Awaited<ReturnType<typeof startShiftMarket>>;
 const stops: (() => Promise<void>)[] = [];
+// Used for one-off shifts
+const DATE = "2026-11-02";
 
 async function start(): Promise<Market> {
   const market = await startShiftMarket();
@@ -98,7 +100,7 @@ describe("access", () => {
     });
 
     describe("assignment", () => {
-        test("assigns an unreserved shift and an offered shift", async () => {
+        test("assigns an unreserved shift", async () => {
             const { api } = await start();
 
             const captain = ok(await api.auth.register({ username: "rld", password: "correct dog" })).session;
@@ -107,16 +109,24 @@ describe("access", () => {
 
             // An unreserved shift can be assigned directly.
             const unreserved = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
-            ok(await api.shifts.assign({ session: captain, shift: unreserved, user: "ana" }));
-
-            // An offered shift can also be assigned. Ana holds it, then offers it.
-            const offered = ok(await api.shifts.makeOne({ session: captain, start: "13:00", end: "17:00", date: DATE })).shift;
-            ok(await api.shifts.assign({ session: captain, shift: offered, user: "ana" }));
-            ok(await api.shifts.offer({ session: ana, resource: offered }));
-            ok(await api.shifts.assign({ session: captain, shift: offered, user: "ben" }));
+            ok(await api.shifts.assign({ session: captain, resource: unreserved, staff: "ana" }));
 
             const rows = ok(await api.shifts.list({ session: captain })).organizer.shifts;
             expect(rows.find((s) => s.shift === unreserved)?.state.holder).toEqual("ana");
+        });
+
+        test("assigns an offered shift", async () => {
+            const { api } = await start();
+
+            const captain = ok(await api.auth.register({ username: "rld", password: "correct dog" })).session;
+            const ana = ok(await api.auth.register({ username: "ana", password: "correct dog" })).session;
+            const ben = ok(await api.auth.register({ username: "ben", password: "correct dog" })).session;
+
+            // An offered shift can also be assigned. Ana holds it, then offers it.
+            const offered = ok(await api.shifts.makeOne({ session: captain, start: "13:00", end: "17:00", date: DATE })).shift;
+            ok(await api.shifts.assign({ session: captain, resource: offered, staff: "ana" }));
+            ok(await api.shifts.offer({ session: ana, resource: offered }));
+            ok(await api.shifts.assign({ session: captain, resource: offered, staff: "ben" }));
 
             const row = ok(await api.shifts.list({ session: captain })).organizer.shifts.find((s) => s.shift === offered);
             expect(row?.state.holder).toEqual("ben");
@@ -131,10 +141,10 @@ describe("access", () => {
             const ben = ok(await api.auth.register({ username: "ben", password: "correct dog" })).session;
 
             const shift = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
-            ok(await api.shifts.assign({ session: captain, shift, user: "ana" }));
+            ok(await api.shifts.assign({ session: captain, resource: shift, staff: "ana" }));
 
             // Ben is not the captain, so his attempt to reassign Ana's shift is refused.
-            const attempt = await api.shifts.assign({ session: ben, shift, user: "ben" });
+            const attempt = await api.shifts.assign({ session: ben, resource: shift, staff: "ben" });
             expect(attempt).toEqual({ error: "NOT_CAPTAIN" });
 
             const row = ok(await api.shifts.list({ session: captain })).organizer.shifts.find((s) => s.shift === shift);
@@ -150,10 +160,10 @@ describe("access", () => {
 
             // The shift is held by Ana and not offered, so the captain cannot assign it to Ben.
             const shift = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
-            ok(await api.shifts.assign({ session: captain, shift, user: "ana" }));
+            ok(await api.shifts.assign({ session: captain, resource: shift, staff: "ana" }));
 
-            const attempt = await api.shifts.assign({ session: captain, shift, user: "ben" });
-            expect(attempt).toEqual({ error: "TAKEN" });
+            const attempt = await api.shifts.assign({ session: captain, resource: shift, staff: "ben" });
+            expect(attempt).toEqual({ error: "ALREADY_CLAIMED" });
 
             const row = ok(await api.shifts.list({ session: captain })).organizer.shifts.find((s) => s.shift === shift);
             expect(row?.state.holder).toEqual("ana");
@@ -200,7 +210,7 @@ describe("access", () => {
             // The shift exists and is unheld, so only the session check can refuse the assignment.
             const shift = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
 
-            const attempt = await api.shifts.assign({ session: "not-a-real-session", shift, user: "ana" });
+            const attempt = await api.shifts.assign({ session: "not-a-real-session", resource: shift, staff: "ana" });
             expect(attempt).toEqual({ error: "NOT_SIGNED_IN" });
 
             const row = ok(await api.shifts.list({ session: captain })).organizer.shifts.find((s) => s.shift === shift);
@@ -223,7 +233,7 @@ describe("access", () => {
             expect(await api.shifts.makeOne({ session, start: "13:00", end: "17:00", date: DATE })).toEqual({
                 error: "NOT_SIGNED_IN",
             });
-            expect(await api.shifts.assign({ session, shift, user: "ana" })).toEqual({ error: "NOT_SIGNED_IN" });
+            expect(await api.shifts.assign({ session, resource: shift, staff: "ana" })).toEqual({ error: "NOT_SIGNED_IN" });
         });
     });
 
@@ -236,7 +246,7 @@ describe("access", () => {
 
         // The captain creates a shift and assigns it to Ana, so Ana holds it.
         const shift = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
-        ok(await api.shifts.assign({ session: captain, shift, user: "ana" }));
+        ok(await api.shifts.assign({ session: captain, resource: shift, staff: "ana" }));
 
         // Ana offers the shift she holds, which opens an offer on it.
         const offer = ok(await api.shifts.offer({ session: ana, resource: shift })).offer;
@@ -256,7 +266,7 @@ describe("access", () => {
 
         // Ana holds the shift, so Ben has no claim to offer it.
         const shift = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
-        ok(await api.shifts.assign({ session: captain, shift, user: "ana" }));
+        ok(await api.shifts.assign({ session: captain, resource: shift, staff: "ana" }));
 
         // Ben's offer is refused with NOT_HELD, the branch for a shift held by someone else.
         const attempt = await api.shifts.offer({ session: ben, resource: shift });
@@ -276,7 +286,7 @@ describe("access", () => {
 
         // The shift is held by Ana, so only the session check can refuse this offer.
         const shift = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
-        ok(await api.shifts.assign({ session: captain, shift, user: "ana" }));
+        ok(await api.shifts.assign({ session: captain, resource: shift, staff: "ana" }));
 
         // A session that was never issued is refused with NOT_SIGNED_IN before any shift check runs.
         const attempt = await api.shifts.offer({ session: "not-a-real-session", resource: shift });
@@ -294,7 +304,7 @@ describe("access", () => {
         // The captain creates a shift and assigns it to ana, who will be the holder.
         const captain = ok(await api.auth.register({ username: "rld", password: "correct dog" })).session;
         const shift = ok(await api.shifts.makeOne({ session: captain, start: "09:00", end: "13:00", date: DATE })).shift;
-        ok(await api.shifts.assign({ session: captain, shift, user: "ana" }));
+        ok(await api.shifts.assign({ session: captain, resource: shift, staff: "ana" }));
 
         // Ana offers the shift, which leaves it open for anyone to claim.
         const ana = ok(await api.auth.register({ username: "ana", password: "correct dog" })).session;
@@ -308,14 +318,14 @@ describe("access", () => {
             api.shifts.claim({ session: cake, resource: shift }),
         ]);
 
-        // Exactly one claim is accepted. The loser is refused with TAKEN or ALREADY_CLAIMED,
-        // depending on whether the offer had already closed when its branch ran.
+        // Exactly one claim is accepted. The loser is refused with ALREADY_CLAIMED,
+        // whether the offer had already closed when its branch ran.
         const attempts = [benAttempt, cakeAttempt];
         const accepted = attempts.filter((attempt) => !("error" in attempt));
         const refused = attempts.filter((attempt) => "error" in attempt);
         expect(accepted).toHaveLength(1);
         expect(refused).toHaveLength(1);
-        expect(["TAKEN", "ALREADY_CLAIMED"]).toContain(refused[0]!.error);
+        expect(["ALREADY_CLAIMED"]).toContain(refused[0]!.error);
     });
   });
 });

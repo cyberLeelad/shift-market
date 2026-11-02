@@ -145,6 +145,30 @@ Concrete types:
 - `Kerberos` — [Shift Market types](../design/types.md), line 8.
 - `Shift` — [Shift Market types](../design/types.md), line 11.
 
+## Views
+
+_Views name reusable conditions. Multiple `where` blocks are alternatives._
+
+### (user) is a desk captain
+
+Authored path: `access.IsCaptain`.
+- Covered by [Access](../design/compositions/access.md), line 5.
+
+```view
+(user) is a desk captain — inputs (user); outputs (); bindings ()
+  where user is among ["rld"]
+```
+
+### (user) owns (shift)
+
+Authored path: `access.Owns`.
+- Covered by [Access](../design/compositions/access.md), line 7.
+
+```view
+(user) owns (shift) — inputs (user, shift); outputs (); bindings ()
+  where Reserving._holderOf (resource: shift) has (holder: user)
+```
+
 ## Formers
 
 _Formers name result shapes evaluated when asked. The source former owns_
@@ -205,8 +229,8 @@ Former "the shift organizer" — inputs (); bindings (shift, start, end, date); 
 ### Accounts.SignOut
 
 Authored path: `Accounts.SignOut`.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 11.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 14.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 11.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 14.
 
 ```reaction
 when RequestBoundary.request (path: "/auth/logout", requestId, session)
@@ -217,8 +241,8 @@ then
 ### Accounts.SignOut#2
 
 Authored path: `Accounts.SignOut`.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 11.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 14.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 11.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 14.
 
 ```reaction
 when Sessioning.end (session), asked by Accounts.SignOut
@@ -231,8 +255,8 @@ then
 ### Accounts.identifyMe
 
 Authored path: `Accounts.identifyMe`.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 5.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 8.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 5.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 8.
 
 ```reaction
 when RequestBoundary.request (path: "/auth/me", requestId, session)
@@ -243,8 +267,8 @@ then
 ### Accounts.identifyMe#2
 
 Authored path: `Accounts.identifyMe`.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 5.
-- Covered by [Accounts](../design/compositions/access/accounts.md), line 8.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 5.
+- Covered by [Accounts](../design/compositions/auth/accounts.md), line 8.
 
 ```reaction
 when Sessioning.use (session, subject: user), asked by Accounts.identifyMe
@@ -278,8 +302,8 @@ then
 ### Passwords.Register:accepted
 
 Authored path: `Passwords.Register`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 12.
 
 ```reaction
 when RequestBoundary.request (password, path: "/auth/register", requestId, username)
@@ -292,8 +316,8 @@ then
 ### Passwords.Register:accepted#2
 
 Authored path: `Passwords.Register`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 12.
 
 ```reaction
 when Registering.register (username, user), asked by Passwords.Register:accepted
@@ -306,8 +330,8 @@ then
 ### Passwords.Register:accepted#3
 
 Authored path: `Passwords.Register`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 12.
 
 ```reaction
 when Authenticating.set (password, user), asked by Passwords.Register:accepted#2
@@ -318,8 +342,8 @@ then
 ### Passwords.Register:accepted#4
 
 Authored path: `Passwords.Register`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 12.
 
 ```reaction
 when Sessioning.start (subject: user, expiresAt, session), asked by Passwords.Register:accepted#3
@@ -332,8 +356,8 @@ then
 ### Passwords.Register:refused
 
 Authored path: `Passwords.Register`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 5.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 12.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 5.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 12.
 
 ```reaction
 when RequestBoundary.request (password, path: "/auth/register", requestId, username)
@@ -346,8 +370,8 @@ then
 ### Passwords.SignIn:known
 
 Authored path: `Passwords.SignIn`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 13.
 
 ```reaction
 when RequestBoundary.request (password, path: "/auth/login", requestId, username)
@@ -360,8 +384,8 @@ then
 ### Passwords.SignIn:known#2
 
 Authored path: `Passwords.SignIn`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 13.
 
 ```reaction
 when Authenticating.authenticate (password, user), asked by Passwords.SignIn:known
@@ -372,8 +396,8 @@ then
 ### Passwords.SignIn:known#3
 
 Authored path: `Passwords.SignIn`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 13.
 
 ```reaction
 when Sessioning.start (subject: user, expiresAt, session), asked by Passwords.SignIn:known#2
@@ -386,8 +410,8 @@ then
 ### Passwords.SignIn:unknown
 
 Authored path: `Passwords.SignIn`.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 7.
-- Covered by [Passwords](../design/compositions/access/passwords.md), line 13.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 7.
+- Covered by [Passwords](../design/compositions/auth/passwords.md), line 13.
 
 ```reaction
 when RequestBoundary.request (password, path: "/auth/login", requestId, username)
@@ -397,11 +421,153 @@ then
   RequestBoundary.respond (error: "INVALID_CREDENTIALS", requestId)
 ```
 
+### Shifts.Assign
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+then
+  Sessioning.use (session)
+```
+
+### Shifts.Assign:not_captain#2
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Shifts.Assign
+where
+  Registering._username (user) has (username)
+  no view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+then
+  RequestBoundary.respond (error: "NOT_CAPTAIN", requestId)
+```
+
+### Shifts.Assign:reserve#2
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Shifts.Assign
+where
+  Registering._username (user) has (username)
+  view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+  Provisioning._exists (shift: resource) has (exists: true)
+  no Reserving._holderOf (resource)
+then
+  Reserving.reserve (resource, user: staff)
+```
+
+### Shifts.Assign:reserve#3
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Reserving.reserve (resource, user: staff, reservation), asked by Shifts.Assign:reserve#2
+where
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+then
+  RequestBoundary.respond (requestId, reservation)
+```
+
+### Shifts.Assign:taken#2
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Shifts.Assign
+where
+  Registering._username (user) has (username)
+  view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+  Provisioning._exists (shift: resource) has (exists: true)
+  Reserving._holderOf (resource)
+  no Offering._getOffer (item: resource)
+then
+  RequestBoundary.respond (error: "ALREADY_CLAIMED", requestId)
+```
+
+### Shifts.Assign:transfer_offered#2
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Shifts.Assign
+where
+  Registering._username (user) has (username)
+  view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+  Provisioning._exists (shift: resource) has (exists: true)
+  Offering._getOffer (item: resource) has (offer)
+then
+  Offering.resolve (offer)
+```
+
+### Shifts.Assign:transfer_offered#3
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Offering.resolve (offer), asked by Shifts.Assign:transfer_offered#2
+where
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+then
+  Reserving.transfer (resource, user: staff)
+```
+
+### Shifts.Assign:transfer_offered#4
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Reserving.transfer (resource, user: staff, reservation), asked by Shifts.Assign:transfer_offered#3
+where
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+then
+  RequestBoundary.respond (requestId, reservation)
+```
+
+### Shifts.Assign:unknown_shift#2
+
+Authored path: `Shifts.Assign`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 14.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Shifts.Assign
+where
+  Registering._username (user) has (username)
+  view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (path: "/shifts/assign", requestId, resource, session, staff)
+  Provisioning._exists (shift: resource) has (exists: false)
+then
+  RequestBoundary.respond (error: "UNKNOWN_SHIFT", requestId)
+```
+
 ### Shifts.Claim:already_reserved
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 23.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 26.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
@@ -416,8 +582,8 @@ then
 ### Shifts.Claim:claim_offered
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 23.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 26.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
@@ -431,8 +597,8 @@ then
 ### Shifts.Claim:claim_offered#2
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 23.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 26.
 
 ```reaction
 when Offering.resolve (offer), asked by Shifts.Claim:claim_offered
@@ -445,8 +611,8 @@ then
 ### Shifts.Claim:claim_offered#3
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 23.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 26.
 
 ```reaction
 when Reserving.transfer (resource, user, reservation: next), asked by Shifts.Claim:claim_offered#2
@@ -459,8 +625,8 @@ then
 ### Shifts.Claim:doesnt_exist
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 23.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 26.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
@@ -473,8 +639,8 @@ then
 ### Shifts.Claim:success
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 23.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 26.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/claim", requestId, resource, user)
@@ -488,8 +654,8 @@ then
 ### Shifts.Claim:success#2
 
 Authored path: `Shifts.Claim`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 22.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 25.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 23.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 26.
 
 ```reaction
 when Reserving.reserve (resource, user, reservation: next), asked by Shifts.Claim:success
@@ -518,23 +684,55 @@ Authored path: `Shifts.MakeOne`.
 - Covered by [Shifts](../design/compositions/Shifts.md), line 12.
 
 ```reaction
-when RequestBoundary.request (date, end, path: "/shifts/makeOne", requestId, start)
+when RequestBoundary.request (date, end, path: "/shifts/makeOne", requestId, session, start)
 then
-  Provisioning.makeShift (date, end, start)
+  Sessioning.use (session)
 ```
 
-### Shifts.MakeOne#2
+### Shifts.MakeOne:captain#2
 
 Authored path: `Shifts.MakeOne`.
 - Covered by [Shifts](../design/compositions/Shifts.md), line 9.
 - Covered by [Shifts](../design/compositions/Shifts.md), line 12.
 
 ```reaction
-when Provisioning.makeShift (date, end, start, shift), asked by Shifts.MakeOne
+when Sessioning.use (session, subject: user), asked by Shifts.MakeOne
 where
-  earlier, RequestBoundary.request (date, end, path: "/shifts/makeOne", requestId, start)
+  Registering._username (user) has (username)
+  view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (date, end, path: "/shifts/makeOne", requestId, session, start)
+then
+  Provisioning.makeShift (date, end, start)
+```
+
+### Shifts.MakeOne:captain#3
+
+Authored path: `Shifts.MakeOne`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 12.
+
+```reaction
+when Provisioning.makeShift (date, end, start, shift), asked by Shifts.MakeOne:captain#2
+where
+  earlier, RequestBoundary.request (date, end, path: "/shifts/makeOne", requestId, session, start)
 then
   RequestBoundary.respond (requestId, shift)
+```
+
+### Shifts.MakeOne:not_captain#2
+
+Authored path: `Shifts.MakeOne`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 12.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Shifts.MakeOne
+where
+  Registering._username (user) has (username)
+  no view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (date, end, path: "/shifts/makeOne", requestId, session, start)
+then
+  RequestBoundary.respond (error: "NOT_CAPTAIN", requestId)
 ```
 
 ### Shifts.MakeWeekly
@@ -544,30 +742,62 @@ Authored path: `Shifts.MakeWeekly`.
 - Covered by [Shifts](../design/compositions/Shifts.md), line 13.
 
 ```reaction
-when RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, start)
+when RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, session, start)
 then
-  Provisioning.makeWeeklyShift (day, end, first, last, start)
+  Sessioning.use (session)
 ```
 
-### Shifts.MakeWeekly#2
+### Shifts.MakeWeekly:captain#2
 
 Authored path: `Shifts.MakeWeekly`.
 - Covered by [Shifts](../design/compositions/Shifts.md), line 9.
 - Covered by [Shifts](../design/compositions/Shifts.md), line 13.
 
 ```reaction
-when Provisioning.makeWeeklyShift (day, end, first, last, start, shift), asked by Shifts.MakeWeekly
+when Sessioning.use (session, subject: user), asked by Shifts.MakeWeekly
 where
-  earlier, RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, start)
+  Registering._username (user) has (username)
+  view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, session, start)
+then
+  Provisioning.makeWeeklyShift (day, end, first, last, start)
+```
+
+### Shifts.MakeWeekly:captain#3
+
+Authored path: `Shifts.MakeWeekly`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 13.
+
+```reaction
+when Provisioning.makeWeeklyShift (day, end, first, last, start, shift), asked by Shifts.MakeWeekly:captain#2
+where
+  earlier, RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, session, start)
 then
   RequestBoundary.respond (requestId, shift)
+```
+
+### Shifts.MakeWeekly:not_captain#2
+
+Authored path: `Shifts.MakeWeekly`.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 9.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 13.
+
+```reaction
+when Sessioning.use (session, subject: user), asked by Shifts.MakeWeekly
+where
+  Registering._username (user) has (username)
+  no view "(user) is a desk captain" with (user: username)
+  earlier, RequestBoundary.request (day, end, first, last, path: "/shifts/makeWeekly", requestId, session, start)
+then
+  RequestBoundary.respond (error: "NOT_CAPTAIN", requestId)
 ```
 
 ### Shifts.Offer:already_offered
 
 Authored path: `Shifts.Offer`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 17.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 20.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
@@ -580,8 +810,8 @@ then
 ### Shifts.Offer:doesnt_exist
 
 Authored path: `Shifts.Offer`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 17.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 20.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
@@ -594,8 +824,8 @@ then
 ### Shifts.Offer:held_by_other
 
 Authored path: `Shifts.Offer`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 17.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 20.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
@@ -610,8 +840,8 @@ then
 ### Shifts.Offer:success
 
 Authored path: `Shifts.Offer`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 17.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 20.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
@@ -626,8 +856,8 @@ then
 ### Shifts.Offer:success#2
 
 Authored path: `Shifts.Offer`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 17.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 20.
 
 ```reaction
 when Offering.offer (item: resource, user, offer), asked by Shifts.Offer:success
@@ -640,8 +870,8 @@ then
 ### Shifts.Offer:unheld
 
 Authored path: `Shifts.Offer`.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 16.
-- Covered by [Shifts](../design/compositions/Shifts.md), line 19.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 17.
+- Covered by [Shifts](../design/compositions/Shifts.md), line 20.
 
 ```reaction
 when RequestBoundary.request (path: "/shifts/offer", requestId, resource, user)
@@ -664,7 +894,8 @@ not listed here have no explicit input contract.
 - `/auth/logout` — requires `session`
 - `/auth/me` — requires `session`
 - `/auth/register` — requires `password`, `username`
+- `/shifts/assign` — requires `session`, `resource`, `staff`
 - `/shifts/claim` — requires `resource`, `user`
-- `/shifts/makeOne` — requires `start`, `end`, `date`
-- `/shifts/makeWeekly` — requires `start`, `end`, `day`, `first`, `last`
+- `/shifts/makeOne` — requires `session`, `start`, `end`, `date`
+- `/shifts/makeWeekly` — requires `session`, `start`, `end`, `day`, `first`, `last`
 - `/shifts/offer` — requires `resource`, `user`
