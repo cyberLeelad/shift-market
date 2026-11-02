@@ -159,7 +159,7 @@ async function makeShift() {
   height: 56px;
   border: none;
   border-radius: 50%;
-  background: #2563eb;
+  background: #620505;
   color: #fff;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
@@ -167,7 +167,7 @@ async function makeShift() {
 }
 
 .fab:hover {
-  background: #1d4ed8;
+  background: #7e0909;
   transform: scale(1.05);
 }
 
