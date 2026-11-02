@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from "vue";
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { ShiftMarketWireHttp } from "../../generated/wire.ts";
-import ShiftBlock from "./ShiftBlock.vue";
+import CalendarDay from "./CalendarDay.vue";
 import { useSession } from "./session.ts";
 
 const { signOut } = useSession();
@@ -280,6 +280,7 @@ onMounted(loadCalendar);
   </div>
 
   <h2>Calendar View</h2>
+  <!-- Week navigation -->
   <div class="week-nav">
     <button type="button" class="nav-btn" @click="shiftWeek(-1)">◀ Prev</button>
     <button type="button" class="nav-btn nav-btn--today" @click="goToCurrentWeek">This week</button>
@@ -287,30 +288,22 @@ onMounted(loadCalendar);
     <button type="button" class="nav-btn" @click="shiftWeek(1)">Next ▶</button>
   </div>
 
+  <!-- The calendar grid itself -->
   <div class="cal-grid">
     <div class="cal-hours">
       <div class="cal-head"></div>
       <div v-for="h in HOUR_LABELS" :key="h" class="cal-hour">{{ h }}</div>
     </div>
 
-    <div v-for="col in columns" :key="col.iso" class="cal-day">
-      <div class="cal-head">{{ col.head }}</div>
-      <div class="cal-body">
-        <ShiftBlock
-            v-for="b in col.blocks"
-            :key="b.key"
-            :shift="b.shift"
-            :label="b.label"
-            :holder="b.holder"
-            :offer="b.offer"
-            :category="b.category"
-            :is-mine="b.holder === me"
-            :style="b.style"
-            @offer="offerShift"
-            @claim="claimShift"
-        />
-      </div>
-    </div>
+    <CalendarDay
+        v-for="col in columns"
+        :key="col.iso"
+        :head="col.head"
+        :blocks="col.blocks"
+        :me="me"
+        @offer="offerShift"
+        @claim="claimShift"
+    />
   </div>
 
   <div class="fab-wrap">
