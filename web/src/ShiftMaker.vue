@@ -119,13 +119,15 @@ async function makeShift() {
     </form>
   </div>
 
-  <div class="fab-wrap">
+  <!-- This button allows the captain to open the shift maker interface. It only shows up for the captain. -->
+  <div v-if="isCaptain && !showShiftMaker" class="fab-wrap">
     <button type="button" class="fab" aria-label="Add shifts" title="Add shifts" @click="openShiftMaker">
       <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
         <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" fill="none" />
       </svg>
     </button>
   </div>
+
 </template>
 
 <style scoped>
