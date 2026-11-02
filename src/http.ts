@@ -1,6 +1,6 @@
 import { httpPolicy, type HttpPolicy } from "@mit-sdg/sync-engine-http/policy";
-import { accountsHttp } from "./compositions/access/accounts.ts";
-import { passwordsHttp } from "./compositions/access/passwords.ts";
+import { accountsHttp } from "./compositions/auth/accounts.ts";
+import { passwordsHttp } from "./compositions/auth/passwords.ts";
 
 /**
  * The HTTP category the server returns for each refusal from the compositions in `src/compositions/`.

@@ -1,7 +1,7 @@
 import { assemble } from "@mit-sdg/sync-engine/assembly";
 import { composition as shiftsComposition } from "./compositions/Shifts.ts";
-import { composition as accounts } from "./compositions/access/accounts.ts";
-import { composition as passwords } from "./compositions/access/passwords.ts";
+import { composition as accounts } from "./compositions/auth/accounts.ts";
+import { composition as passwords } from "./compositions/auth/passwords.ts";
 import { applicationConceptSet } from "./concepts.ts";
 import { db } from "./db.ts";
 import type { Db } from "mongodb";
