@@ -1,20 +1,22 @@
 :root {
-  /* Palette */
-  --color-page: #f3f4f9;
+  /* Palette, from the East Campus site */
+  --color-page: #E7E4EA;
   --color-surface: #ffffff;
-  --color-text: #1e1f2b;
-  --color-text-muted: #646779;
-  --color-line: #eeeff6;
-  --color-border: #d9dbea;
-  --color-accent: #4338ca;
-  --color-accent-strong: #312a99;
-  --color-accent-soft: #eceafd;
-  --color-danger: #b42318;
-  --color-danger-soft: #fdf1ef;
-  --color-tip: #1e1f2b;
+  --color-text: #000000;
+  --color-text-muted: #4a4a4a;
+  --color-line: #ececec;
+  --color-border: #c9c9c9;
+  --color-accent: #9b1f14;
+  --color-accent-strong: #7a170f;
+  --color-accent-soft: #f6e5e3;
+  --color-header: #000000;
+  --color-danger: #9b1f14;
+  --color-danger-soft: #f6e5e3;
+  --color-tip: #000000;
 
   /* Typography */
-  --font-sans: "Figtree", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-sans: "Roboto", system-ui, sans-serif;
+  --font-display: "Roboto Slab", Georgia, serif;
   --text-xs: 0.8125rem;
   --text-sm: 0.875rem;
   --text-base: 0.9375rem;

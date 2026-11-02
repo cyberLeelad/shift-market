@@ -50,21 +50,19 @@ const emit = defineEmits<{
   box-sizing: border-box;
   overflow: hidden;
   padding: 2px;
-  background: #cfe3ff;
-  border: 1px solid #5b8fd6;
+  border-radius: 6px;
 }
 .cal-shift.available {
-  background: #dcfce7;
-  border-color: #16a34a;
+  background: #DE9E36;
+  color: #000;
 }
 .cal-shift.mine {
-  background: #dbeafe;
-  border-color: #2563eb;
+  background: #37323E;
+  color: #ffff;
 }
 .cal-shift.unavailable {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-  color: #6b7280;
+  background: #6D6A75;
+  color: #fff;
 }
 .icon-btn {
   position: absolute;

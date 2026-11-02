@@ -57,16 +57,33 @@ function clock(hhmm: string): string {
 /** Assigns each shift to a side-by-side lane so overlapping shifts do not hide each other. */
 function layoutDay(list: ShiftRow[]) {
   const sorted = [...list].sort((a, b) => minutes(a.start) - minutes(b.start));
+  type Placed = { s: ShiftRow; from: number; to: number; lane: number; lanes: number };
+  const placed: Placed[] = [];
+  let cluster: Placed[] = [];
+  let clusterEnd = -Infinity;
   const laneEnds: number[] = [];
-  const placed = sorted.map((s) => {
+
+  // Every shift in a cluster gets the cluster's lane count, not the whole day's.
+  const closeCluster = () => {
+    const lanes = Math.max(1, laneEnds.length);
+    for (const item of cluster) item.lanes = lanes;
+    placed.push(...cluster);
+    cluster = [];
+    laneEnds.length = 0;
+  };
+
+  for (const s of sorted) {
     const from = minutes(s.start);
     const to = Math.min(minutes(s.end), MINUTES_PER_DAY);
+    if (from >= clusterEnd) closeCluster();
     let lane = laneEnds.findIndex((end) => end <= from);
     if (lane === -1) lane = laneEnds.push(0) - 1;
     laneEnds[lane] = to;
-    return { s, from, to, lane };
-  });
-  return { placed, lanes: Math.max(1, laneEnds.length) };
+    clusterEnd = Math.max(clusterEnd, to);
+    cluster.push({ s, from, to, lane, lanes: 1 });
+  }
+  closeCluster();
+  return placed;
 }
 
 // Derived state
@@ -81,11 +98,11 @@ const weekLabel = computed(() => `${toISO(days.value[0])} to ${toISO(days.value[
 const columns = computed(() =>
   days.value.map((day, i) => {
     const iso = toISO(day);
-    const { placed, lanes } = layoutDay(shiftRows.value.filter((s) => s.date === iso));
+    const placed = layoutDay(shiftRows.value.filter((s) => s.date === iso));
     return {
       iso,
       head: `${DAY_NAMES[i]} ${iso.slice(5)}`,
-      blocks: placed.map(({ s, from, to, lane }) => ({
+      blocks: placed.map(({ s, from, to, lane, lanes }) => ({
         key: s.shift,
         shift: s.shift,
         label: `${s.start}-${clock(s.end)}${minutes(s.end) > MINUTES_PER_DAY ? " (next day)" : ""}`,
@@ -94,14 +111,13 @@ const columns = computed(() =>
         category: shiftCategory(s),
         style: {
           top: `${(from - CAL_START_MINUTE) * PX_PER_MINUTE}px`,
-          height: `${(to - from) * PX_PER_MINUTE}px`,
+          height: `${(to - from) * PX_PER_MINUTE - 3}px`,
           left: `${(lane * 100) / lanes}%`,
-          width: `${100 / lanes}%`,
+          width: `calc(${100 / lanes}% - 3px)`,
         },
       })),
-    };
-  }),
-);
+    }
+}));
 
 // Actions
 /** Sets a status message and returns true when the user has not entered a kerberos. */
@@ -241,5 +257,20 @@ onMounted(loadCalendar);
 .nav-btn:focus-visible {
   outline: 2px solid #2563eb;
   outline-offset: 2px;
+}
+.cal-grid { display: grid; grid-template-columns: 4rem repeat(7, 1fr); font-size: 0.85rem; }
+.cal-head {
+  height: 2rem;
+  line-height: 2rem;
+  font-weight: bold;
+  text-align: center;
+}
+.cal-hour {
+  height: 60px;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding-top: 2px;
+  border-top: 1px solid #000;
+  box-sizing: border-box;
 }
 </style>

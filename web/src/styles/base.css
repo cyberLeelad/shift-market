@@ -19,10 +19,11 @@ body {
   color: var(--color-text);
   background: var(--color-page);
   -webkit-font-smoothing: antialiased;
+  padding: var(--space-6) var(--space-8);
 }
 
-h1,
-h2 {
+h1, h2 {
+  font-family: var(--font-display);
   line-height: 1.2;
   font-weight: 700;
 }
@@ -201,4 +202,13 @@ button:disabled {
   font-size: var(--text-xs);
   font-weight: 400;
   color: var(--color-text-muted);
+}
+
+form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+li {
+  margin: 0.5rem 0;
 }

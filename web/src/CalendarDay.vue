@@ -52,7 +52,9 @@ const emit = defineEmits<{
 .cal-body {
   position: relative;
   height: 960px;
-  border-left: 1px solid #ddd;
-  background: repeating-linear-gradient(to bottom, transparent 0 59px, #eee 59px 60px);
+  background: repeating-linear-gradient(to bottom, transparent 0 59px, #000 59px 60px);
+}
+.cal-day {
+  min-width: 0;
 }
 </style>
