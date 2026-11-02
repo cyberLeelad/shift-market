@@ -46,7 +46,7 @@ afterEach(async () => {
   for (const stop of stops.splice(0)) await stop();
 });
 
-describe("shifts", () => {
+describe("access", () => {
     describe("captain access", () => {
         test("makes one-off and weekly shifts", async () => {
             const { api } = await start();
