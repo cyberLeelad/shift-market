@@ -6,9 +6,9 @@ import ShiftMaker from "./ShiftMaker.vue";
 import { useSession } from "./session.ts";
 import type { ShiftCategory, ShiftRow } from "./types.ts";
 
-const { signOut } = useSession();
+const { me: session, signOut } = useSession();
 
-const CAPTAIN_KERBEROS = "captain-fred";
+const CAPTAIN_KERBEROS = "rld";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MINUTES_PER_DAY = 24 * 60;
 const CAL_START_MINUTE = 8 * 60;
@@ -17,7 +17,6 @@ const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const HOUR_LABELS = Array.from({ length: 16 }, (_, i) => `${pad(i + 8)}:00`);
 
 // State
-const kerberos = ref("");
 const status = ref("");
 const shiftRows = ref<ShiftRow[]>([]);
 const weekStart = ref(mondayOf(new Date()));
@@ -29,7 +28,7 @@ function pad(n: number): string {
 
 function shiftCategory(s: ShiftRow): ShiftCategory {
   if (s.offer || !s.holder) return "available";
-  if (s.holder === me.value) return "mine";
+  if (s.holder === myKerberos.value) return "mine";
   return "unavailable";
 }
 
@@ -71,8 +70,8 @@ function layoutDay(list: ShiftRow[]) {
 }
 
 // Derived state
-const me = computed(() => kerberos.value.trim());
-const isCaptain = computed(() => me.value === CAPTAIN_KERBEROS);
+const myKerberos = computed(() => session.value?.username ?? "");
+const isCaptain = computed(() => myKerberos.value === CAPTAIN_KERBEROS);
 
 const days = computed(() =>
   Array.from({ length: 7 }, (_, i) => new Date(weekStart.value.getTime() + i * DAY_MS)),
@@ -107,7 +106,7 @@ const columns = computed(() =>
 // Actions
 /** Sets a status message and returns true when the user has not entered a kerberos. */
 function needsKerberos(): boolean {
-  if (me.value) return false;
+  if (myKerberos.value) return false;
   status.value = "Enter your kerberos first.";
   return true;
 }
@@ -132,14 +131,14 @@ async function loadCalendar(): Promise<ShiftRow[]> {
 
 async function claimShift(shift: string) {
   if (needsKerberos()) return;
-  const result = await api.shifts.claim({ user: me.value, resource: shift });
+  const result = await api.shifts.claim({ user: myKerberos.value, resource: shift });
   status.value = "error" in result ? `Could not claim: ${result.error}` : "Claimed!";
   await loadCalendar();
 }
 
 async function offerShift(shift: string) {
   if (needsKerberos()) return;
-  const result = await api.shifts.offer({ resource: shift, user: me.value });
+  const result = await api.shifts.offer({ resource: shift, user: myKerberos.value });
   if ("error" in result) {
     status.value = `Could not offer shift: ${result.error}`;
     return;
@@ -188,7 +187,7 @@ onMounted(loadCalendar);
       :key="col.iso"
       :head="col.head"
       :blocks="col.blocks"
-      :me="me"
+      :me="myKerberos"
       @offer="offerShift"
       @claim="claimShift"
     />
