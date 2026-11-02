@@ -19,7 +19,7 @@
     "start:frontend": "HOST=0.0.0.0 BACKEND_URL=http://127.0.0.1:4000 bun web/server.ts",
     "check:design": "sync-engine check-design design/concepts/*.md design/types.md design/compositions/*.md",
     "dev": "bun run db:up && bun run --parallel dev:backend dev:frontend",
-    "dev:backend": "bun --watch src/main.ts",
+    "dev:backend": "PUBLIC_ORIGIN=http://localhost:8080 bun --watch src/main.ts",
     "dev:frontend": "vite",
     "up": "podman compose up -d --build && bun scripts/check-api.ts http://127.0.0.1:8080 --wait",
     "down": "podman compose down",
