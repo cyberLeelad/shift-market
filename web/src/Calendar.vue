@@ -2,7 +2,9 @@
 import { computed, onMounted, ref } from "vue";
 import { createHttpClient } from "@mit-sdg/sync-engine-http/client";
 import type { ShiftMarketWireHttp } from "../../generated/wire.ts";
+import ShiftBlock from "./ShiftBlock.vue";
 import { useSession } from "./session.ts";
+
 const { signOut } = useSession();
 
 const client = createHttpClient<ShiftMarketWireHttp>({ baseUrl: "/api" });
@@ -294,33 +296,19 @@ onMounted(loadCalendar);
     <div v-for="col in columns" :key="col.iso" class="cal-day">
       <div class="cal-head">{{ col.head }}</div>
       <div class="cal-body">
-        <div
-          v-for="b in col.blocks"
-          :key="b.key"
-          :class="['cal-shift', b.category]"
-          :style="b.style"
-        >
-          <div>{{ b.label }}</div>
-          <div v-if="b.category === 'available'" class="needs-coverage">needs coverage!</div>
-          <div v-if="b.holder">held by {{ b.holder }}</div>
-          <div v-if="b.offer">offered</div>
-          <button
-            v-if="b.holder && b.holder === me && !b.offer"
-            type="button"
-            class="icon-btn icon-btn--offer"
-            title="Offer this shift"
-            aria-label="Offer this shift"
-            @click="offerShift(b.shift)"
-          >⇄</button>
-          <button
-            v-else-if="!b.holder || b.offer"
-            type="button"
-            class="icon-btn icon-btn--claim"
-            title="Claim this shift"
-            aria-label="Claim this shift"
-            @click="claimShift(b.shift)"
-          >+</button>
-        </div>
+        <ShiftBlock
+            v-for="b in col.blocks"
+            :key="b.key"
+            :shift="b.shift"
+            :label="b.label"
+            :holder="b.holder"
+            :offer="b.offer"
+            :category="b.category"
+            :is-mine="b.holder === me"
+            :style="b.style"
+            @offer="offerShift"
+            @claim="claimShift"
+        />
       </div>
     </div>
   </div>
@@ -476,77 +464,5 @@ onMounted(loadCalendar);
 .provision-panel form {
   flex-wrap: wrap;
   align-items: center;
-}
-
-.cal-shift.available {
-  background: #dcfce7;
-  border-color: #16a34a;
-}
-
-.cal-shift.mine {
-  background: #dbeafe;
-  border-color: #2563eb;
-}
-
-.cal-shift.unavailable {
-  background: #f3f4f6;
-  border-color: #9ca3af;
-  color: #6b7280;
-}
-
-.cal-shift {
-  position: absolute;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.icon-btn {
-  position: absolute;
-  right: 4px;
-  bottom: 4px;
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  font-size: 1.1rem;
-  padding: 0;
-  border: 1px solid #d1d5db;
-  border-radius: 50%;
-  background: #fff;
-  font-weight: 700;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s, border-color 0.15s, background-color 0.15s;
-}
-
-.icon-btn:hover {
-  transform: scale(1.1);
-  background: #f9fafb;
-}
-
-.icon-btn--claim {
-  color: #2563eb;
-}
-
-.icon-btn--claim:hover {
-  border-color: #2563eb;
-}
-
-.icon-btn--offer {
-  color: #d97706;
-}
-
-.icon-btn--offer:hover {
-  border-color: #d97706;
-}
-
-.icon-btn:focus-visible {
-  outline: 2px solid #111827;
-  outline-offset: 2px;
-}
-.needs-coverage {
-  font-weight: 600;
-  font-style: italic;
 }
 </style>
