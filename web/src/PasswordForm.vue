@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { api } from "../api/client.ts";
+import { api } from "./client.ts";
 import { useSession } from "./session.ts";
 
 const { enter, error } = useSession();
